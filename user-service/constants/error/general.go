@@ -2,12 +2,6 @@ package error
 
 import "errors"
 
-// General status messages
-const (
-	Succes = "succes"
-	Error  = "error"
-)
-
 // General application errors
 var (
 	ErrInternalServerError = errors.New("Internal Server Error")
