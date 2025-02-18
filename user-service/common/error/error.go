@@ -63,6 +63,7 @@ func ErrValidationResponse(err error) (validationResponse []ValidateResponse) {
 	return validationResponse
 }
 
+// untuk melakukan log error
 func WrapError(err error) error {
 	logrus.Errorf("error %v", err)
 	return err
