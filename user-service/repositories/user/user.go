@@ -7,7 +7,7 @@ import (
 	"github.com/anddriii/kita-futsal/user-service/domain/models"
 )
 
-type UserRepo interface {
+type IUserRepo interface {
 	Register(ctx context.Context, req *dto.RegisterRequest) (*models.User, error)
 	Update(ctx context.Context, req *dto.UpdateRequest, uuid string) (*models.User, error)
 	FindByUsername(context.Context, string) (*models.User, error)

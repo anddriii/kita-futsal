@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"context"
+	"errors"
 
 	errWrap "github.com/anddriii/kita-futsal/user-service/common/error"
 	errConstant "github.com/anddriii/kita-futsal/user-service/constants/error"
@@ -15,7 +16,7 @@ type UserRepoImpl struct {
 	db *gorm.DB
 }
 
-func NewUserRepo(db *gorm.DB) UserRepo {
+func NewUserRepo(db *gorm.DB) IUserRepo {
 	return &UserRepoImpl{db: db}
 }
 
@@ -59,16 +60,46 @@ func (u *UserRepoImpl) Update(ctx context.Context, req *dto.UpdateRequest, uuid 
 }
 
 // FindByEmail implements UserRepo.
-func (u *UserRepoImpl) FindByEmail(context.Context, string) (*models.User, error) {
-	panic("unimplemented")
+func (u *UserRepoImpl) FindByEmail(ctx context.Context, email string) (*models.User, error) {
+	var user models.User
+
+	err := u.db.WithContext(ctx).Preload("role").Where("email = ?", email).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errConstant.ErrUserNotFound
+		}
+		return nil, errWrap.WrapError(errConstant.ErrSQLError)
+	}
+
+	return &user, nil
 }
 
 // FindByUUID implements UserRepo.
-func (u *UserRepoImpl) FindByUUID(context.Context, string) (*models.User, error) {
-	panic("unimplemented")
+func (u *UserRepoImpl) FindByUUID(ctx context.Context, uuid string) (*models.User, error) {
+	var user models.User
+
+	err := u.db.WithContext(ctx).Preload("role").Where("uuid = ?", uuid).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errConstant.ErrUserNotFound
+		}
+		return nil, errWrap.WrapError(errConstant.ErrSQLError)
+	}
+
+	return &user, nil
 }
 
 // FindByUsername implements UserRepo.
-func (u *UserRepoImpl) FindByUsername(context.Context, string) (*models.User, error) {
-	panic("unimplemented")
+func (u *UserRepoImpl) FindByUsername(ctx context.Context, username string) (*models.User, error) {
+	var user models.User
+
+	err := u.db.WithContext(ctx).Preload("role").Where("username = ?", username).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errConstant.ErrUserNotFound
+		}
+		return nil, errWrap.WrapError(errConstant.ErrSQLError)
+	}
+
+	return &user, nil
 }
