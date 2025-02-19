@@ -16,7 +16,7 @@ type UserResponse struct {
 	PhoneNumber string    `json:"phoneNumber"`
 }
 
-type LoginReponse struct {
+type LoginResponse struct {
 	User  UserResponse `json:"user"`
 	Token string       `json:"token"`
 }
@@ -36,11 +36,11 @@ type RegisterResponse struct {
 }
 
 type UpdateRequest struct {
-	Name            string `json:"name" validate:"required"`
-	Username        string `json:"username" validate:"required"`
-	Password        string `json:"password,omitempty"`
-	ConfirmPassword string `json:"confirmPassword,omitempty"`
-	Email           string `json:"email" validate:"required, email"`
-	PhoneNumber     string `json:"phoneNumber" validate:"required"`
+	Name            string  `json:"name" validate:"required"`
+	Username        string  `json:"username" validate:"required"`
+	Password        *string `json:"password,omitempty"`
+	ConfirmPassword *string `json:"confirmPassword,omitempty"`
+	Email           string  `json:"email" validate:"required, email"`
+	PhoneNumber     string  `json:"phoneNumber" validate:"required"`
 	RoleId          uint
 }

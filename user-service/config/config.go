@@ -17,7 +17,7 @@ type AppConfig struct {
 	Database              database `json:"database"`
 	RateLimitMaxRequest   float64  `json:"rateLimiterMaxRequest"`
 	RateLimiterTimeSecond int      `json:"rateLimiterTimeSecond"`
-	JwtScretKey           string   `json:"jwtSecretKey"`
+	JwtSecretKey          string   `json:"jwtSecretKey"`
 	JwtExpireTime         int      `json:"jwtExpirationTime"`
 }
 

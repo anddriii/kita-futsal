@@ -45,7 +45,7 @@ func (u *UserRepoImpl) Update(ctx context.Context, req *dto.UpdateRequest, uuid 
 	user := models.User{
 		Name:        req.Name,
 		Username:    req.Username,
-		Password:    req.Password,
+		Password:    *req.Password,
 		Email:       req.Email,
 		PhoneNumber: req.PhoneNumber,
 	}
