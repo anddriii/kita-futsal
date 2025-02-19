@@ -10,14 +10,15 @@ type LoginRequest struct {
 type UserResponse struct {
 	UUID        uuid.UUID `json:"uuid"`
 	Name        string    `json:"name"`
+	Username    string    `json:"username"`
 	Email       string    `json:"email"`
-	Role        uint      `json:"role"`
-	PhoneNumber uint      `json:"phoneNumber"`
+	Role        string    `json:"role"`
+	PhoneNumber string    `json:"phoneNumber"`
 }
 
 type LoginReponse struct {
-	User  string `json:"user"`
-	Token string `json:"token"`
+	User  UserResponse `json:"user"`
+	Token string       `json:"token"`
 }
 
 type RegisterRequest struct {
