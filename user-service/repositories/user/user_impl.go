@@ -3,6 +3,7 @@ package repositories
 import (
 	"context"
 	"errors"
+	"log"
 
 	errWrap "github.com/anddriii/kita-futsal/user-service/common/error"
 	errConstant "github.com/anddriii/kita-futsal/user-service/constants/error"
@@ -34,6 +35,7 @@ func (u *UserRepoImpl) Register(ctx context.Context, req *dto.RegisterRequest) (
 
 	err := u.db.WithContext(ctx).Create(&user).Error
 	if err != nil {
+		log.Println("Error inserting user to DB:", err)
 		return nil, errWrap.WrapError(errConstant.ErrSQLError) // jika terjadi error akan memanipulasi log error agar tidak menampilkan "Query error" nya
 	}
 

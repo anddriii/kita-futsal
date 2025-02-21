@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/anddriii/kita-futsal/user-service/common/util"
@@ -38,7 +39,9 @@ jika config dari local maka akan mengambil dari file config.json.
 Tetapi jika confignya berasal dari grpc maka akan menggunakan util "BindFromConsul"
 */
 func Init() {
-	err := util.BindFromJson(Config, "config.json", ".")
+	fmt.Printf("Using Config: %+v\n", Config)
+
+	err := util.BindFromJson(&Config, "config.json", ".")
 	if err != nil {
 		logrus.Infof("Failed to bind config: %v", err)
 		err := util.BindFromConsul(Config, os.Getenv("CONSUL_HTTP_URL"), os.Getenv("CONSUL_HTTP_PATH"))
@@ -46,4 +49,5 @@ func Init() {
 			panic(err)
 		}
 	}
+	fmt.Printf("Loaded Config: %+v\n", Config)
 }

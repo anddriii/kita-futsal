@@ -1,9 +1,12 @@
 package util
 
 import (
+	"fmt"
 	"os"
+	"path/filepath"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -16,19 +19,34 @@ func BindFromJson(dest any, filename, path string) error {
 	v := viper.New()
 
 	v.SetConfigType("json")
-	v.AddConfigPath(path)
-	v.SetConfigName(filename)
 
-	err := v.ReadInConfig()
-	if err != nil {
+	// Hapus ekstensi dari nama file agar sesuai dengan Viper
+	configName := strings.TrimSuffix(filename, filepath.Ext(filename))
+	v.SetConfigName(configName)
+
+	// Cek apakah path kosong
+	if path != "" {
+		v.AddConfigPath(path)
+	} else {
+		v.AddConfigPath(".") // Pakai direktori saat ini jika path kosong
+	}
+
+	// Log untuk debug
+	fmt.Printf("Loading config: %s.json from %s\n", configName, path)
+
+	// Baca file konfigurasi
+	if err := v.ReadInConfig(); err != nil {
+		logrus.Errorf("Failed to read config file: %v", err)
 		return err
 	}
 
-	err = v.Unmarshal(&dest)
-	if err != nil {
-		logrus.Errorf("Failed to unmarshal: %v", err)
+	// Unmarshal ke struct
+	if err := v.Unmarshal(&dest); err != nil {
+		logrus.Errorf("Failed to unmarshal config: %v", err)
 		return err
 	}
+
+	fmt.Printf("Config loaded successfully: %+v\n", dest)
 	return nil
 }
 

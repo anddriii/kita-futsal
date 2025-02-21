@@ -30,6 +30,7 @@ var command = cobra.Command{
 		// Memuat variabel lingkungan dari file .env
 		_ = godotenv.Load()
 		config.Init()
+		fmt.Printf("Config setelah Init: %+v\n", config.Config)
 
 		// Inisialisasi koneksi database
 		db, err := config.InitDB()

@@ -67,7 +67,7 @@ func (u *UserControllers) Login(ctx *gin.Context) {
 
 // Register implements IUserController.
 func (u *UserControllers) Register(ctx *gin.Context) {
-	request := dto.RegisterRequest{}
+	request := &dto.RegisterRequest{}
 
 	err := ctx.ShouldBindJSON(request)
 	if err != nil {
@@ -91,9 +91,10 @@ func (u *UserControllers) Register(ctx *gin.Context) {
 			Err:     err,
 			Gin:     ctx,
 		})
+		return
 	}
 
-	user, err := u.UserService.GetUser().Register(ctx, &request)
+	user, err := u.UserService.GetUser().Register(ctx, request)
 	if err != nil {
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,

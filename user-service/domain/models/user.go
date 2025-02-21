@@ -11,8 +11,8 @@ type User struct {
 	UUID        uuid.UUID `gorm:"type:uuid;not null"`
 	Name        string    `gorm:"type:varchar(100);not null"`
 	Username    string    `gorm:"type:varchar(20);not null;unique"`
-	Password    string    `gorm:"type:varchar(255):not null"`
-	PhoneNumber string    `gorm:"type:varchar(15):not null"`
+	Password    string    `gorm:"type:varchar(255);not null"`
+	PhoneNumber string    `gorm:"type:varchar(15);not null"`
 	Email       string    `gorm:"type:varchar(100);not null"`
 	RoleId      uint      `gorm:"type:uint;not null"`
 	CreatedAt   *time.Time

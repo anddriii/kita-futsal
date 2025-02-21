@@ -14,6 +14,8 @@ func InitDB() (*gorm.DB, error) {
 	encodedPassword := url.QueryEscape(config.Database.Password)
 	uri := fmt.Sprintf("postgresql://%s:%s@%s:%d/%s?sslmode=disable", config.Database.UserName, encodedPassword, config.Database.Host, config.Database.Port, config.Database.Name)
 
+	fmt.Printf("Database Config: %+v\n", config.Database)
+
 	db, err := gorm.Open(postgres.Open(uri), &gorm.Config{})
 	if err != nil {
 		return nil, err

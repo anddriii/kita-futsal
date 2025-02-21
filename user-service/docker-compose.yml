@@ -1,0 +1,8 @@
+name: booking-order-app
+services:
+  user-service:
+    container_name: user-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - .env

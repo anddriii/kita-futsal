@@ -2,6 +2,8 @@ package services
 
 import (
 	"context"
+	"errors"
+	"log"
 	"strings"
 	"time"
 
@@ -13,6 +15,7 @@ import (
 	"github.com/anddriii/kita-futsal/user-service/repositories"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
+	"gorm.io/gorm"
 )
 
 type UserService struct {
@@ -78,30 +81,28 @@ func (u *UserService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Lo
 func (u *UserService) ifUsernameExist(ctx context.Context, username string) bool {
 	user, err := u.repository.GetUser().FindByUsername(ctx, username)
 	if err != nil {
-		return false
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false // Username belum ada di database
+		}
+		log.Println("Error checking username:", err) // Log jika ada error lain
+		return false                                 // Menghindari kesalahan fatal
 	}
 
-	//cek apakah username pernah digunakan atau belum
-	if user != nil {
-		return true
-	}
-
-	return false
+	return user != nil
 }
 
 // ifEmailExist implements IUserService.
 func (u *UserService) ifEmailExist(ctx context.Context, email string) bool {
 	user, err := u.repository.GetUser().FindByEmail(ctx, email)
 	if err != nil {
-		return false
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return false // Email belum ada di database
+		}
+		log.Println("Error checking email:", err) // Log jika ada error lain
+		return false                              // Menghindari kesalahan fatal
 	}
 
-	//cek apakah email pernah digunakan atau belum
-	if user != nil {
-		return true
-	}
-
-	return false
+	return user != nil
 }
 
 // Register implements IUserService.
@@ -134,11 +135,12 @@ func (u *UserService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 
 	user, err := u.repository.GetUser().Register(ctx, reqUser)
 	if err != nil {
+		log.Println("Error saat menyimpan user:", err)
 		return nil, err
 	}
 
-	response := dto.RegisterResponse{
-		User: *&dto.UserResponse{
+	response := &dto.RegisterResponse{
+		User: dto.UserResponse{
 			UUID:        user.UUID,
 			Name:        user.Name,
 			Username:    user.Username,
@@ -147,7 +149,7 @@ func (u *UserService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		},
 	}
 
-	return &response, nil
+	return response, nil
 }
 
 // Update implements IUserService.
