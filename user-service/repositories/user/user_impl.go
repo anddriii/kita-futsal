@@ -82,6 +82,7 @@ func (u *UserRepoImpl) FindByUUID(ctx context.Context, uuid string) (*models.Use
 
 	err := u.db.WithContext(ctx).Preload("Role").Where("uuid = ?", uuid).First(&user).Error
 	if err != nil {
+		log.Println("Error sql query : ", err)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errConstant.ErrUserNotFound
 		}

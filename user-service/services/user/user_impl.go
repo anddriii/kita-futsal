@@ -45,7 +45,9 @@ func (u *UserService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.Lo
 	}
 
 	//Menentukan Waktu Kadaluarsa Token
-	expirationTime := time.Now().Add(time.Duration(config.Config.JwtExpireTime) * time.Minute).Unix()
+	expirationTime := time.Now().Add(24 * time.Hour).Unix()
+	log.Println("JWT Expiration Time:", expirationTime)
+	log.Println("Current Unix Time:", time.Now().Unix())
 
 	data := &dto.UserResponse{
 		UUID:        user.UUID,

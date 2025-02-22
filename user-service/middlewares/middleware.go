@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/anddriii/kita-futsal/user-service/common/response"
 	"github.com/anddriii/kita-futsal/user-service/config"
@@ -91,6 +92,9 @@ func validateApiKey(ctx *gin.Context) error {
 	// Bandingkan API Key dari request dengan hasil hash yang dihasilkan
 	if apiKey != resultHash {
 		// Jika tidak cocok, kembalikan error Unauthorized
+		log.Println("Apikey tidak sesuai dengan hash")
+		log.Println("api key: ", apiKey)
+		log.Println("resultHash: ", resultHash)
 		return errCons.ErrUnauthorized
 	}
 
@@ -119,12 +123,13 @@ func validateBearerToken(c *gin.Context, token string) error {
 		jwtSecret := []byte(config.Config.JwtSecretKey)
 		return jwtSecret, nil
 	})
+	log.Println("Token Expiration (from claims):", claims.ExpiresAt)
+	log.Println("Current Time:", time.Now().Unix())
 
-	if err != nil || !tokenJwt.Valid {
+	if !tokenJwt.Valid {
+		log.Println("error dari tokenJWT")
 		return err
 	}
-
-	log.Println("error adjad")
 
 	userLogin := c.Request.WithContext(context.WithValue(c.Request.Context(), constants.UserLogin, claims.User))
 	c.Request = userLogin

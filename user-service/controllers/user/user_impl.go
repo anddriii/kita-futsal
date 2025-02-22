@@ -165,7 +165,7 @@ func (u *UserControllers) Update(ctx *gin.Context) {
 
 // GetUserUUID implements IUserController.
 func (u *UserControllers) GetUserUUID(ctx *gin.Context) {
-	user, err := u.UserService.GetUser().GetUserLogin(ctx.Request.Context())
+	user, err := u.UserService.GetUser().GetUserUUID(ctx.Request.Context(), ctx.Param("uuid"))
 	if err != nil {
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
@@ -184,7 +184,7 @@ func (u *UserControllers) GetUserUUID(ctx *gin.Context) {
 
 // GetUserLogin implements IUserController.
 func (u *UserControllers) GetUserLogin(ctx *gin.Context) {
-	user, err := u.UserService.GetUser().GetUserUUID(ctx.Request.Context(), ctx.Param("uuid"))
+	user, err := u.UserService.GetUser().GetUserLogin(ctx.Request.Context())
 	if err != nil {
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
