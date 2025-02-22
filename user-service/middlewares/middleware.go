@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"log"
 	"net/http"
 	"strings"
 
@@ -72,6 +73,9 @@ func validateApiKey(ctx *gin.Context) error {
 	apiKey := ctx.GetHeader(constants.XApiKey)           // API Key yang dikirim oleh client
 	serviceName := ctx.GetHeader(constants.XServiceName) // Nama layanan yang melakukan request
 	requestAt := ctx.GetHeader(constants.XRequestAt)     // Timestamp saat request dikirim
+	log.Println("Apikey:", apiKey)
+	log.Println("servicename:", serviceName)
+	log.Println("request at:", requestAt)
 
 	// Ambil Signature Key dari konfigurasi server
 	signatureKey := config.Config.SignatureKey
@@ -95,8 +99,7 @@ func validateApiKey(ctx *gin.Context) error {
 }
 
 // validasi bearer token JWT
-func validateBearerToken(ctx *gin.Context, token string) error {
-	//Jika token tidak mengandung kata "Bearer", maka request akan langsung ditolak dengan Unauthorized error.
+func validateBearerToken(c *gin.Context, token string) error {
 	if !strings.Contains(token, "Bearer") {
 		return errCons.ErrUnauthorized
 	}
@@ -106,50 +109,51 @@ func validateBearerToken(ctx *gin.Context, token string) error {
 		return errCons.ErrUnauthorized
 	}
 
-	claims := services.Claims{}
-	tokenJwt, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
-		_, ok := t.Method.(*jwt.SigningMethodHMAC)
+	claims := &services.Claims{}
+	tokenJwt, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		_, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			return nil, errCons.ErrInvalidToken
 		}
 
-		jwtScret := []byte(config.Config.JwtSecretKey)
-		return jwtScret, nil
+		jwtSecret := []byte(config.Config.JwtSecretKey)
+		return jwtSecret, nil
 	})
 
 	if err != nil || !tokenJwt.Valid {
-		return errCons.ErrUnauthorized
+		return err
 	}
 
-	//Menyimpan informasi user dari token ke context request
-	userLogin := ctx.Request.WithContext(context.WithValue(ctx.Request.Context(), constants.UserLogin, claims.User))
-	ctx.Request = userLogin
-	ctx.Set(constants.Token, token) //Menyimpan token dalam context Gin
-	return nil
+	log.Println("error adjad")
 
+	userLogin := c.Request.WithContext(context.WithValue(c.Request.Context(), constants.UserLogin, claims.User))
+	c.Request = userLogin
+	c.Set(constants.Token, token)
+	return nil
 }
 
 func Authenticate() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
+	return func(c *gin.Context) {
 		var err error
-		token := ctx.GetHeader(constants.Authorization)
-		//Jika tidak ada token, request langsung ditolak dengan Unauthorized error.
+		token := c.GetHeader(constants.Authorization)
 		if token == "" {
-			responUnauthorized(ctx, errCons.ErrUnauthorized.Error())
+			responUnauthorized(c, errCons.ErrUnauthorized.Error())
 			return
 		}
 
-		err = validateBearerToken(ctx, token)
+		err = validateBearerToken(c, token)
 		if err != nil {
-			responUnauthorized(ctx, err.Error())
+			log.Println("error vaidate bearer token")
+			responUnauthorized(c, err.Error())
 			return
 		}
 
-		err = validateApiKey(ctx)
+		err = validateApiKey(c)
 		if err != nil {
-			responUnauthorized(ctx, err.Error())
+			responUnauthorized(c, err.Error())
 			return
 		}
-		ctx.Next()
+
+		c.Next()
 	}
 }

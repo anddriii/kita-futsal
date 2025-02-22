@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 
 	errWrap "github.com/anddriii/kita-futsal/user-service/common/error"
@@ -21,7 +22,8 @@ func NewUserController(userService services.IServiceRegistry) IUserController {
 
 // Login implements IUserController.
 func (u *UserControllers) Login(ctx *gin.Context) {
-	request := dto.LoginRequest{}
+
+	request := &dto.LoginRequest{}
 
 	err := ctx.ShouldBindJSON(request)
 	if err != nil {
@@ -30,6 +32,7 @@ func (u *UserControllers) Login(ctx *gin.Context) {
 			Err:  err,
 			Gin:  ctx,
 		})
+		log.Println("Error saat bind json di controller:", err)
 		return
 	}
 
@@ -45,15 +48,18 @@ func (u *UserControllers) Login(ctx *gin.Context) {
 			Err:     err,
 			Gin:     ctx,
 		})
+		log.Println("Error saat validate di controller:", err)
+		return
 	}
 
-	user, err := u.UserService.GetUser().Login(ctx, &request)
+	user, err := u.UserService.GetUser().Login(ctx, request)
 	if err != nil {
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  ctx,
 		})
+		log.Println("Error saat get user di controller:", err)
 		return
 	}
 
