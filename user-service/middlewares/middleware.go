@@ -126,7 +126,7 @@ func validateBearerToken(c *gin.Context, token string) error {
 	log.Println("Token Expiration (from claims):", claims.ExpiresAt)
 	log.Println("Current Time:", time.Now().Unix())
 
-	if !tokenJwt.Valid {
+	if err != nil || !tokenJwt.Valid {
 		log.Println("error dari tokenJWT")
 		return err
 	}
@@ -142,6 +142,7 @@ func Authenticate() gin.HandlerFunc {
 		var err error
 		token := c.GetHeader(constants.Authorization)
 		if token == "" {
+			log.Println("error: token kosong")
 			responUnauthorized(c, errCons.ErrUnauthorized.Error())
 			return
 		}
@@ -155,6 +156,7 @@ func Authenticate() gin.HandlerFunc {
 
 		err = validateApiKey(c)
 		if err != nil {
+			log.Println("error vaidate API KEY")
 			responUnauthorized(c, err.Error())
 			return
 		}
