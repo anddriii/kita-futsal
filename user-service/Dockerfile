@@ -1,11 +1,11 @@
-FROM golang:1.22.7-alpine3.20 as builder
+FROM golang:1.22.12-alpine3.20 as builder
 
 RUN apk update
 RUN apk add git openssh tzdata build-base python3 net-tools
 
 WORKDIR /app
 
-COPY .env.example .env
+COPY .env .env
 COPY . .
 
 RUN go install github.com/buu700/gin@latest

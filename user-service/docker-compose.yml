@@ -1,7 +1,12 @@
-name: booking-order-app
+name: kita-futsal-app
 services:
   user-service:
     container_name: user-service
+    platform: linux/amd64
+#    image: anddriii/user-service:1 // build ketika di server
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
       - "8001:8001"
     env_file:

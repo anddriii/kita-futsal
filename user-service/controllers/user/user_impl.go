@@ -119,7 +119,7 @@ func (u *UserControllers) Register(ctx *gin.Context) {
 
 // Update implements IUserController.
 func (u *UserControllers) Update(ctx *gin.Context) {
-	request := dto.UpdateRequest{}
+	request := &dto.UpdateRequest{}
 	uuid := ctx.Param("uuid")
 
 	err := ctx.ShouldBindJSON(request)
@@ -129,6 +129,7 @@ func (u *UserControllers) Update(ctx *gin.Context) {
 			Err:  err,
 			Gin:  ctx,
 		})
+		log.Println("gagal bind json dari controller : ", err)
 		return
 	}
 
@@ -144,15 +145,18 @@ func (u *UserControllers) Update(ctx *gin.Context) {
 			Err:     err,
 			Gin:     ctx,
 		})
+		log.Println("gagal validasi dari controller : ", err)
+		return
 	}
 
-	user, err := u.UserService.GetUser().Update(ctx, &request, uuid)
+	user, err := u.UserService.GetUser().Update(ctx, request, uuid)
 	if err != nil {
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  ctx,
 		})
+		log.Println("gagal update ke service : ", err)
 		return
 	}
 

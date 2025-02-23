@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -15,6 +16,8 @@ import (
 	"github.com/anddriii/kita-futsal/user-service/repositories"
 	"github.com/anddriii/kita-futsal/user-service/routes"
 	"github.com/anddriii/kita-futsal/user-service/services"
+	"github.com/didip/tollbooth"
+	"github.com/didip/tollbooth/limiter"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
@@ -91,13 +94,13 @@ var command = cobra.Command{
 		})
 
 		// Middleware untuk membatasi jumlah permintaan (Rate Limiting)
-		// lmt := tollbooth.NewLimiter(
-		// 	config.Config.RateLimitMaxRequest,
-		// 	&limiter.ExpirableOptions{
-		// 		DefaultExpirationTTL: time.Duration(config.Config.RateLimiterTimeSecond) * time.Second,
-		// 	},
-		// )
-		// router.Use(middlewares.RateLimiter(lmt))
+		lmt := tollbooth.NewLimiter(
+			config.Config.RateLimitMaxRequest,
+			&limiter.ExpirableOptions{
+				DefaultExpirationTTL: time.Duration(config.Config.RateLimiterTimeSecond) * time.Second,
+			},
+		)
+		router.Use(middlewares.RateLimiter(lmt))
 
 		// Inisialisasi route untuk API versi 1
 		group := router.Group("/api/v1")
@@ -116,6 +119,7 @@ func Run() {
 	if err != nil {
 		panic(err)
 	}
+	log.Println("Server running on port 8001")
 }
 
 /*
