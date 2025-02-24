@@ -10,6 +10,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	_ "github.com/spf13/viper/remote"
 )
 
 // digunakan untuk membaca file JSON dari server cloud atau dari Consul (penyimpanan konfigurasi berbasis key-value).
@@ -79,8 +80,6 @@ func SetEnvFromConsulKV(v *viper.Viper) error {
 			val = strconv.Itoa(int(valeOf.Float()))
 		case reflect.Bool:
 			val = strconv.FormatBool(valeOf.Bool())
-		default:
-			panic("unsupported type")
 		}
 
 		err = os.Setenv(k, val)
