@@ -3,13 +3,13 @@ package config
 import "github.com/parnurzeal/gorequest"
 
 type ClientConfig struct {
-	client       gorequest.SuperAgent
+	client       *gorequest.SuperAgent
 	baseUrl      string
 	signatureKey string
 }
 
 type IClientConfig interface {
-	Client() gorequest.SuperAgent
+	Client() *gorequest.SuperAgent
 	BaseUrl() string
 	SignatureKey() string
 }
@@ -18,7 +18,9 @@ type Option func(*ClientConfig)
 
 func NewClientConfig(options ...Option) IClientConfig {
 	clientConfig := &ClientConfig{
-		client: *gorequest.New().Set("Content-Type", "application/json").Set("Accept", "application/json"),
+		client: gorequest.New().
+			Set("Content-Type", "application/json").
+			Set("Accept", "application/json"),
 	}
 	for _, option := range options {
 		option(clientConfig)
@@ -27,7 +29,7 @@ func NewClientConfig(options ...Option) IClientConfig {
 	return clientConfig
 }
 
-func (c *ClientConfig) Client() gorequest.SuperAgent {
+func (c *ClientConfig) Client() *gorequest.SuperAgent {
 	return c.client
 }
 
