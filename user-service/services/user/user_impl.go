@@ -35,13 +35,13 @@ type Claims struct {
 func (u *UserService) Login(ctx context.Context, req *dto.LoginRequest) (*dto.LoginResponse, error) {
 	user, err := u.repository.GetUser().FindByUsername(ctx, req.Username)
 	if err != nil {
-		return nil, err
+		return nil, errConst.ErrUserNotFound
 	}
 
 	//Verifikasi Password
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
 	if err != nil {
-		return nil, err
+		return nil, errConst.ErrPasswordIncorrect
 	}
 
 	//Menentukan Waktu Kadaluarsa Token
