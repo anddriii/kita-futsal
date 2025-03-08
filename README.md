@@ -6,4 +6,4 @@ You know who she is? Yeah, she's my wife. Hahaha Kidding.
 
 #akhirnya gw diterima magang di kominfo coy
 
-test commit di arch
+test commit di arch os
