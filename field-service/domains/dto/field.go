@@ -1,30 +1,31 @@
 package dto
 
 import (
+	"mime/multipart"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type FieldRequest struct {
-	Name         string   `json:"name" validate:"required"`
-	Code         string   `json:"code" validate:"required"`
-	PricePerHour int      `json:"pricePerHour" validate:"required"`
-	Images       []string `json:"images" validate:"required"`
+	Name         string                 `json:"name" validate:"required"`
+	Code         string                 `json:"code" validate:"required"`
+	PricePerHour int                    `json:"pricePerHour" validate:"required"`
+	Images       []multipart.FileHeader `json:"images" validate:"required"`
 }
 
-type FieldUpdate struct {
-	Name         string   `json:"name" validate:"required"`
-	Code         string   `json:"code" validate:"required"`
-	PricePerHour int      `json:"pricePerHour" validate:"required"`
-	Images       []string `json:"images"`
+type UpdateFieldRequest struct {
+	Name         string                 `json:"name" validate:"required"`
+	Code         string                 `json:"code" validate:"required"`
+	PricePerHour int                    `json:"pricePerHour" validate:"required"`
+	Images       []multipart.FileHeader `json:"images"`
 }
 
 type FieldResponse struct {
 	UUID         uuid.UUID `json:"uuid"`
 	Code         string    `json:"code"`
 	Name         string    `json:"name"`
-	PricePerHour int       `json:"pricePerHour"`
+	PricePerHour any       `json:"pricePerHour"`
 	Images       []string  `json:"images"`
 	CreatedAt    *time.Time
 	UpdateAt     *time.Time
