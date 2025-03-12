@@ -9,7 +9,7 @@ import (
 
 type IFieldScheduleService interface {
 	FindAllWithPagination(ctc context.Context, req *dto.FieldScheduleRequestParam) (util.PaginationResult, error)
-	FindAllByIdAndDate(ctx context.Context, fieldId int, date string) (dto.FieldScheduleForBookingReponse, error)
+	FindAllFieldByIdAndDate(ctx context.Context, uuid string, date string) ([]dto.FieldScheduleForBookingReponse, error)
 	FindByUUID(ctx context.Context, uuid string) (dto.FieldScheduleResponse, error)
 	GenereateScheduleForOneMonth(ctx context.Context, req dto.GenerateFieldScheduleForOneMonthRequest) error
 	Create(ctx context.Context, req *dto.FieldScheduleRequest) error

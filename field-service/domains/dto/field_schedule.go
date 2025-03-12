@@ -38,11 +38,11 @@ type FieldScheduleResponse struct {
 }
 
 type FieldScheduleForBookingReponse struct {
-	UUID         uuid.UUID                     `json:"uuid"`
-	PricePerHour int                           `json:"pricePerHour"`
-	Date         string                        `json:"date"`
-	Status       constants.FieldScheduleStatus `json:"status"`
-	Time         string                        `json:"time"`
+	UUID         uuid.UUID                         `json:"uuid"`
+	PricePerHour string                            `json:"pricePerHour"`
+	Date         string                            `json:"date"`
+	Status       constants.FieldScheduleStatusName `json:"status"`
+	Time         string                            `json:"time"`
 }
 
 type FieldScheduleRequestParam struct {

@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/anddriii/kita-futsal/field-service/common/util"
@@ -71,12 +72,74 @@ func (f *FieldScheduleService) Create(ctx context.Context, req *dto.FieldSchedul
 
 // Delete implements IFieldScheduleService.
 func (f *FieldScheduleService) Delete(ctx context.Context, uuid string) error {
-	panic("unimplemented")
+	_, err := f.repository.GetFieldSchedule().FindByUUID(ctx, uuid)
+	if err != nil {
+		return err
+	}
+
+	err = f.repository.GetFieldSchedule().Delete(ctx, uuid)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (f *FieldScheduleService) convertMonthName(inputDate string) string {
+	date, err := time.Parse(time.DateOnly, inputDate)
+	if err != nil {
+		return ""
+	}
+
+	indonesiaMonth := map[string]string{
+		"Jan": "Jan",
+		"Feb": "Feb",
+		"Mar": "Mar",
+		"Apr": "Apr",
+		"May": "Mei",
+		"Jun": "Jun",
+		"Jul": "Jul",
+		"Aug": "Agu",
+		"Sep": "Sep",
+		"Oct": "Okt",
+		"Nov": "Nov",
+		"Dec": "Des",
+	}
+
+	formattedDate := date.Format("28 Sep")
+	day := formattedDate[:3]
+	month := formattedDate[3:]
+	formattedDate = fmt.Sprintf("%s %s", day, indonesiaMonth[month])
+	return formattedDate
 }
 
 // FindAllByIdAndDate implements IFieldScheduleService.
-func (f *FieldScheduleService) FindAllByIdAndDate(ctx context.Context, fieldId int, date string) (dto.FieldScheduleForBookingReponse, error) {
-	panic("unimplemented")
+func (f *FieldScheduleService) FindAllFieldByIdAndDate(ctx context.Context, uuid string, date string) ([]dto.FieldScheduleForBookingReponse, error) {
+	field, err := f.repository.GetFieldSchedule().FindByUUID(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	fieldSchedules, err := f.repository.GetFieldSchedule().FindAllByIdAndDate(ctx, int(field.ID), date)
+	if err != nil {
+		return nil, err
+	}
+
+	fieldScheduleResults := make([]dto.FieldScheduleForBookingReponse, 0, len(fieldSchedules))
+	for _, fieldSchedule := range fieldSchedules {
+		pricePerHour := float64(field.Field.PricePerHour)
+		startTime, _ := time.Parse("12:21:01", fieldSchedule.Time.StartTime)
+		endTime, _ := time.Parse("12:21:01", fieldSchedule.Time.EndTime)
+		fieldScheduleResults = append(fieldScheduleResults, dto.FieldScheduleForBookingReponse{
+			UUID:         fieldSchedule.UUID,
+			PricePerHour: util.RupiahFormat(&pricePerHour),
+			Date:         f.convertMonthName(fieldSchedule.Date.Format("2006-01-02")),
+			Status:       fieldSchedule.Status.GetStatusString(),
+			Time:         fmt.Sprintf("%s - %s", startTime.Format("15:04"), endTime.Format("15:04")),
+		})
+	}
+
+	return fieldScheduleResults, nil
 }
 
 // FindAllWithPagination implements IFieldScheduleService.
