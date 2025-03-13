@@ -174,13 +174,39 @@ func (f *FieldScheduleService) FindAllWithPagination(ctx context.Context, param 
 }
 
 // FindByUUID implements IFieldScheduleService.
-func (f *FieldScheduleService) FindByUUID(ctx context.Context, uuid string) (dto.FieldScheduleResponse, error) {
-	panic("unimplemented")
+func (f *FieldScheduleService) FindByUUID(ctx context.Context, uuid string) (*dto.FieldScheduleResponse, error) {
+	fieldSchedule, err := f.repository.GetFieldSchedule().FindByUUID(ctx, uuid)
+	if err != nil {
+		return nil, err
+	}
+
+	response := dto.FieldScheduleResponse{
+		UUID:      fieldSchedule.UUID,
+		FieldName: fieldSchedule.Field.Name,
+		Date:      fieldSchedule.Date.Format("2006-01-02"),
+		Status:    fieldSchedule.Status.GetStatusString().GetStatusInt(),
+		Time:      fmt.Sprintf("%s - %s", fieldSchedule.Time.StartTime, fieldSchedule.Time.EndTime),
+		CreatedAt: fieldSchedule.CreatedAt,
+		UpdateAt:  fieldSchedule.UpdatedAt,
+	}
+
+	return &response, nil
 }
 
 // GenereateScheduleForOneMonth implements IFieldScheduleService.
 func (f *FieldScheduleService) GenereateScheduleForOneMonth(ctx context.Context, req dto.GenerateFieldScheduleForOneMonthRequest) error {
-	panic("unimplemented")
+	field, err := f.repository.GetField().FindByUUID(ctx, req.FieldID)
+	if err != nil {
+		return err
+	}
+
+	times, err := f.repository.GetTime().FindAll(ctx)
+	if err != nil {
+		return err
+	}
+
+	numberOfDay := 30
+
 }
 
 // Update implements IFieldScheduleService.
