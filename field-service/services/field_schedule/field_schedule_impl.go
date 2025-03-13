@@ -143,8 +143,34 @@ func (f *FieldScheduleService) FindAllFieldByIdAndDate(ctx context.Context, uuid
 }
 
 // FindAllWithPagination implements IFieldScheduleService.
-func (f *FieldScheduleService) FindAllWithPagination(ctc context.Context, req *dto.FieldScheduleRequestParam) (util.PaginationResult, error) {
-	panic("unimplemented")
+func (f *FieldScheduleService) FindAllWithPagination(ctx context.Context, param *dto.FieldScheduleRequestParam) (*util.PaginationResult, error) {
+	fieldSchedules, total, err := f.repository.GetFieldSchedule().FindAllWithPagination(ctx, param)
+	if err != nil {
+		return nil, err
+	}
+
+	fieldScheduleResults := make([]dto.FieldScheduleResponse, 0, len(fieldSchedules))
+	for _, schedule := range fieldSchedules {
+		fieldScheduleResults = append(fieldScheduleResults, dto.FieldScheduleResponse{
+			UUID:      schedule.UUID,
+			FieldName: schedule.Field.Name,
+			Date:      schedule.Date.Format("2006-01-02"),
+			Status:    schedule.Status,
+			Time:      fmt.Sprintf("%s - %s", schedule.Time.StartTime, schedule.Time.EndTime),
+			CreatedAt: schedule.CreatedAt,
+			UpdateAt:  schedule.UpdatedAt,
+		})
+	}
+
+	pagination := &util.PaginationParam{
+		Count: total,
+		Limit: param.Limit,
+		Page:  param.Page,
+		Data:  fieldScheduleResults,
+	}
+
+	response := util.GeneratePagination(*pagination)
+	return &response, nil
 }
 
 // FindByUUID implements IFieldScheduleService.
