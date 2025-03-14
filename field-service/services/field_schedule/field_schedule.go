@@ -13,7 +13,7 @@ type IFieldScheduleService interface {
 	FindByUUID(ctx context.Context, uuid string) (*dto.FieldScheduleResponse, error)
 	GenereateScheduleForOneMonth(ctx context.Context, req dto.GenerateFieldScheduleForOneMonthRequest) error
 	Create(ctx context.Context, req *dto.FieldScheduleRequest) error
-	Update(ctx context.Context, uuid string, req *dto.UpdateFieldRequest) (*dto.FieldScheduleResponse, error)
-	UpdateStatus(ctx context.Context, req dto.UpdateStatusFieldScheduleRequest)
+	Update(ctx context.Context, uuid string, req *dto.UpdateFieldScheduleRequest) (*dto.FieldScheduleResponse, error)
+	UpdateStatus(ctx context.Context, req dto.UpdateStatusFieldScheduleRequest) error
 	Delete(ctx context.Context, uuid string) error
 }

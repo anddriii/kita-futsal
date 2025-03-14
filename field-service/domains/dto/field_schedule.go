@@ -26,6 +26,11 @@ type UpdateStatusFieldScheduleRequest struct {
 	FieldScheduleIDs []string `json:"fieldScheduleIDs" validate:"required"`
 }
 
+type UpdateFieldScheduleRequest struct {
+	Date   string `json:"date" validate:"required"`
+	TimeID string `json:"timeID" validate:"required"`
+}
+
 type FieldScheduleResponse struct {
 	UUID         uuid.UUID                     `json:"uuid"`
 	FieldName    string                        `json:"fieldName"`
