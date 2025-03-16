@@ -207,7 +207,7 @@ func (f *FieldScheduleService) FindByUUID(ctx context.Context, uuid string) (*dt
 // GenereateScheduleForOneMonth membuat jadwal otomatis selama satu bulan untuk lapangan tertentu.
 // Fungsi ini akan mengambil semua slot waktu yang tersedia dan membuat jadwal baru untuk setiap hari dalam 30 hari ke depan.
 // Jika jadwal sudah ada untuk tanggal dan waktu tertentu, fungsi akan mengembalikan error untuk menghindari duplikasi.
-func (f *FieldScheduleService) GenereateScheduleForOneMonth(ctx context.Context, req dto.GenerateFieldScheduleForOneMonthRequest) error {
+func (f *FieldScheduleService) GenereateScheduleForOneMonth(ctx context.Context, req *dto.GenerateFieldScheduleForOneMonthRequest) error {
 	// Mengambil data lapangan berdasarkan FieldID yang diberikan dalam request.
 	field, err := f.repository.GetField().FindByUUID(ctx, req.FieldID)
 	if err != nil {
@@ -327,7 +327,7 @@ func (f *FieldScheduleService) Update(ctx context.Context, uuid string, req *dto
 }
 
 // UpdateStatus implements IFieldScheduleService.
-func (f *FieldScheduleService) UpdateStatus(ctx context.Context, req dto.UpdateStatusFieldScheduleRequest) error {
+func (f *FieldScheduleService) UpdateStatus(ctx context.Context, req *dto.UpdateStatusFieldScheduleRequest) error {
 	for _, item := range req.FieldScheduleIDs {
 		_, err := f.repository.GetFieldSchedule().FindByUUID(ctx, item)
 		if err != nil {
