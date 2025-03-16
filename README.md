@@ -1,9 +1,23 @@
-# kita-futsal
+# Kita Futsal
 
-<a alt="Kafka Logo" href="https://www.instagram.com/andristwan._/" target="_blank" rel="noreferrer"><img src="https://cdn3.emoji.gg/emojis/7873-kafkasmug.png" width="160"></a>
+Proyek ini adalah sistem pemesanan lapangan futsal berbasis web yang dikembangkan menggunakan Golang. Aplikasi ini memungkinkan pengguna untuk melihat ketersediaan lapangan, melakukan pemesanan, serta mengelola jadwal booking.
 
-You know who she is? Yeah, she's my wife. Hahaha Kidding.
 
-#akhirnya gw diterima magang di kominfo coy
+## Features
 
-test commit di arch os
+- Autentikasi pengguna (registrasi & login)
+- Pemesanan lapangan futsal
+- Melihat jadwal ketersediaan lapangan
+
+
+## Tech Stack
+
+**Backend:** Golang (gin framework)
+
+**Database:** PostgresSQL
+
+**ORM:** GORM
+
+**Authentikasi:** JWT
+
+**Server:** Node, Express
