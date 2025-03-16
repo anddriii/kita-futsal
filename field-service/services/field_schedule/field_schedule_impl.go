@@ -339,8 +339,8 @@ func (f *FieldScheduleService) UpdateStatus(ctx context.Context, req dto.UpdateS
 			return err
 		}
 
-		return nil
 	}
+	return nil
 }
 
 func NewFieldScheduleService(repository repositories.IRepoRegistry) IFieldScheduleService {
