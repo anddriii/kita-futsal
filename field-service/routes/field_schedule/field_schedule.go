@@ -14,6 +14,18 @@ type FieldScheduleRoute struct {
 	client     clients.IClientRegistry
 }
 
+type IFieldScheduleRoute interface {
+	Run()
+}
+
+func NewFieldScheduleRoute(controller controllers.IControllerRegistry, group *gin.RouterGroup, client clients.IClientRegistry) IFieldScheduleRoute {
+	return &FieldScheduleRoute{
+		controller: controller,
+		group:      group,
+		client:     client,
+	}
+}
+
 // Run implements IFieldScheduleRoute and sets up all field schedule-related routes.
 func (f FieldScheduleRoute) Run() {
 	// Create a sub-route group for field schedule management
