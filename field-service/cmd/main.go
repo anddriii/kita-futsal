@@ -1,16 +1,19 @@
 package cmd
 
 import (
+	"encoding/base64"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/anddriii/kita-futsal/field-service/clients"
+	"github.com/anddriii/kita-futsal/field-service/common/gcs"
 	"github.com/anddriii/kita-futsal/field-service/common/response"
 	"github.com/anddriii/kita-futsal/field-service/config"
 	"github.com/anddriii/kita-futsal/field-service/constants"
 	"github.com/anddriii/kita-futsal/field-service/controllers"
-	"github.com/anddriii/kita-futsal/field-service/domain/models"
+	"github.com/anddriii/kita-futsal/field-service/domains/models"
 	"github.com/anddriii/kita-futsal/field-service/middlewares"
 	"github.com/anddriii/kita-futsal/field-service/repositories"
 	"github.com/anddriii/kita-futsal/field-service/routes"
@@ -47,16 +50,21 @@ var command = cobra.Command{
 
 		// Migrasi database untuk model Role dan User
 		err = db.AutoMigrate(
-			&models.Role{},
-			&models.User{},
+			&models.Field{},
+			&models.FieldSchedule{},
+			&models.Time{},
 		)
 		if err != nil {
 			panic(err)
 		}
 
+		// Inisialisasi klien GCS
+		gcsClient := initGCS()
+		client := clients.NewClientRegistry()
+
 		// Inisialisasi repository, service, dan controller
-		repository := repositories.NewRepoRegistry(db)
-		service := services.NewServiceRegistry(repository)
+		repository := repositories.NewRepositoryRegistry(db)
+		service := services.NewServiceRegistry(repository, gcsClient)
 		controller := controllers.NewControllerRegistry(service)
 
 		// Membuat instance router Gin
@@ -91,7 +99,7 @@ var command = cobra.Command{
 
 		// Middleware untuk membatasi jumlah permintaan (Rate Limiting)
 		lmt := tollbooth.NewLimiter(
-			config.Config.RateLimitMaxRequest,
+			config.Config.RateLimiterMaxRequest,
 			&limiter.ExpirableOptions{
 				DefaultExpirationTTL: time.Duration(config.Config.RateLimiterTimeSecond) * time.Second,
 			},
@@ -100,7 +108,7 @@ var command = cobra.Command{
 
 		// Inisialisasi route untuk API versi 1
 		group := router.Group("/api/v1")
-		route := routes.NewRouteRegistry(controller, group)
+		route := routes.NewRouteRegistry(controller, group, client)
 		route.Serve()
 
 		// Menjalankan server pada port yang telah dikonfigurasi
@@ -116,6 +124,32 @@ func Run() {
 		panic(err)
 	}
 	log.Println("Server running on port 8001")
+}
+
+func initGCS() gcs.IGCSClient {
+	decode, err := base64.StdEncoding.DecodeString(config.Config.GCSPrivateKey)
+	if err != nil {
+		panic(err)
+	}
+
+	stringPrivateKey := string(decode)
+	gcsServiceAccount := gcs.ServiceAccountKeyJson{
+		Type:                    config.Config.GCSType,
+		ProjectId:               config.Config.GCSProjectID,
+		PrivateKeyId:            config.Config.GCSPrivateKeyID,
+		PrivateKey:              stringPrivateKey,
+		ClientEmail:             config.Config.GCSClientEmail,
+		ClientId:                config.Config.GCSClientID,
+		AuthURI:                 config.Config.GCSAuthURI,
+		TokenURI:                config.Config.GCSTokenURI,
+		AuthProviderX509CertUrl: config.Config.GCSAuthProviderX509CertURL,
+		ClientX509CertUrl:       config.Config.GCSClientX509CertURL,
+		UniverseDomain:          config.Config.GCSUniverseDomain,
+	}
+
+	gcsClient := gcs.NewGCSClient(gcsServiceAccount, config.Config.GCSBucketName)
+
+	return gcsClient
 }
 
 /*
