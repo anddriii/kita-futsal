@@ -179,16 +179,24 @@ func (f *FieldService) uploadImage(ctx context.Context, images []multipart.FileH
 }
 
 func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.FieldResponse, error) {
-	imageUrl, err := f.uploadImage(ctx, req.Images)
+	// Path direktori utama untuk local
+
+	photo, err := util.UploadImageLocal(req.Images)
 	if err != nil {
 		return nil, err
 	}
+
+	// upload image for GCPs
+	// imageUrl, err := f.uploadImage(ctx, req.Images)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	field, err := f.repository.GetField().Create(ctx, &models.Field{
 		Code:         req.Code,
 		Name:         req.Name,
 		PricePerHour: req.PricePerHour,
-		Image:        imageUrl,
+		Image:        photo,
 	})
 	if err != nil {
 		return nil, err
