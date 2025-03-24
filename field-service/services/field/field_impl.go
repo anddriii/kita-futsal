@@ -15,6 +15,7 @@ import (
 	"github.com/anddriii/kita-futsal/field-service/domains/dto"
 	"github.com/anddriii/kita-futsal/field-service/domains/models"
 	"github.com/anddriii/kita-futsal/field-service/repositories"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 )
 
@@ -199,6 +200,7 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 		Image:        photo,
 	})
 	if err != nil {
+		log.Errorf("Error create field in service", err)
 		return nil, err
 	}
 

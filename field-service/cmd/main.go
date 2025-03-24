@@ -38,12 +38,14 @@ var command = cobra.Command{
 		// Inisialisasi koneksi database
 		db, err := config.InitDB()
 		if err != nil {
+			log.Fatalf("error in config init db %s", err)
 			panic(err)
 		}
 
 		// Mengatur zona waktu lokal ke "Asia/Jakarta"
 		loc, err := time.LoadLocation("Asia/Jakarta")
 		if err != nil {
+			log.Fatalf("load location %s", err)
 			panic(err)
 		}
 		time.Local = loc
@@ -55,6 +57,7 @@ var command = cobra.Command{
 			&models.Time{},
 		)
 		if err != nil {
+			log.Fatalf("error in migrate %s", err)
 			panic(err)
 		}
 
@@ -121,6 +124,7 @@ var command = cobra.Command{
 func Run() {
 	err := command.Execute()
 	if err != nil {
+		log.Fatalf("error run %s", err)
 		panic(err)
 	}
 	log.Println("Server running on port 8001")
@@ -129,6 +133,7 @@ func Run() {
 func initGCS() gcs.IGCSClient {
 	decode, err := base64.StdEncoding.DecodeString(config.Config.GCSPrivateKey)
 	if err != nil {
+		log.Fatalf("error in initGCS %s", err)
 		panic(err)
 	}
 
