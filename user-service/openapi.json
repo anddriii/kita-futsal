@@ -1,0 +1,96 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "User Service",
+        "description": "User Service API",
+        "version": "0.0.1"
+    },
+    "servers": [{
+        "url": "http://localhost:8001/api/v1/auth"
+    }],
+    "paths": {
+        "/register": {
+            "post": {
+                "summary": "Register new user",
+                "operationId": "registerUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name" :{
+                                        "type": "string"
+                                    }, 
+                                    "username" :{
+                                        "type": "string"
+                                    },
+                                    "password" :{
+                                        "type": "string"
+                                    },
+                                    "confirmPassword" :{
+                                        "type": "string"
+                                    },
+                                    "email" :{
+                                        "type": "string"
+                                    },
+                                    "phoneNumber":{
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "OK",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "type": "object",
+                                    "properties": {
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/UserResponse"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "UserResponse": {
+                "type": "object",
+                "properties": {
+                    "uuid" :{
+                        "type": "string"
+                    },
+                    "name" :{
+                        "type": "string"
+                    }, 
+                    "username" :{
+                        "type": "string"
+                    },
+                    "email" :{
+                        "type": "string"
+                    },
+                    "phoneNumber":{
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+
+}
