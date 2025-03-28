@@ -184,8 +184,11 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 
 	photo, err := util.UploadImageLocal(req.Images)
 	if err != nil {
+		log.Errorf("error from service uploadImage", err)
 		return nil, err
 	}
+
+	fmt.Print("berhasil upload photo", photo)
 
 	// upload image for GCPs
 	// imageUrl, err := f.uploadImage(ctx, req.Images)
@@ -203,6 +206,8 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 		log.Errorf("Error create field in service", err)
 		return nil, err
 	}
+
+	fmt.Print("berhasil create di service")
 
 	response := dto.FieldResponse{
 		UUID:         field.UUID,

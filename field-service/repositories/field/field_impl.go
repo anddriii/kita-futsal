@@ -10,6 +10,7 @@ import (
 	errField "github.com/anddriii/kita-futsal/field-service/constants/error/field"
 	"github.com/anddriii/kita-futsal/field-service/domains/dto"
 	"github.com/anddriii/kita-futsal/field-service/domains/models"
+	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
@@ -32,10 +33,15 @@ func (f *FieldRepository) Create(ctx context.Context, req *models.Field) (*model
 		PricePerHour: req.PricePerHour,
 	}
 
+	fmt.Print("sudah masuk ke database")
+
 	err := f.db.WithContext(ctx).Create(field).Error
 	if err != nil {
+		log.Errorf("error from repositories", err)
 		return nil, errWrap.WrapError(errConst.ErrSQLError)
 	}
+
+	fmt.Print("sudah dibuat ke database")
 
 	return &field, nil
 }

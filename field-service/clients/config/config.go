@@ -1,6 +1,10 @@
 package config
 
-import "github.com/parnurzeal/gorequest"
+import (
+	"fmt"
+
+	"github.com/parnurzeal/gorequest"
+)
 
 type ClientConfig struct {
 	client       *gorequest.SuperAgent
@@ -34,6 +38,7 @@ func (c *ClientConfig) Client() *gorequest.SuperAgent {
 }
 
 func (c *ClientConfig) BaseUrl() string {
+	fmt.Println(c.baseUrl)
 	return c.baseUrl
 }
 

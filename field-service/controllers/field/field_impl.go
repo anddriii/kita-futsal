@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	errValidation "github.com/anddriii/kita-futsal/field-service/common/error"
@@ -10,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/gofiber/fiber/v2/log"
 )
 
 type FieldController struct {
@@ -20,10 +22,12 @@ type FieldController struct {
 func (f *FieldController) Create(c *gin.Context) {
 	// Define a variable to hold the request payload
 	var request dto.FieldRequest
+	fmt.Print("sudah masuk ke controller request: ", request)
 
 	// Bind incoming request data from multipart form into the request struct
 	err := c.ShouldBindWith(&request, binding.FormMultipart)
 	if err != nil {
+		log.Errorf("error from controller shouldiBind", err)
 		// Return a bad request response if binding fails
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
@@ -33,9 +37,12 @@ func (f *FieldController) Create(c *gin.Context) {
 		return
 	}
 
+	fmt.Print("sudah masuk ke controller shouldBind")
+
 	// Initialize a validator to validate the request data
 	validate := validator.New()
 	if err = validate.Struct(request); err != nil {
+		log.Errorf("error from controller validate", err)
 		// If validation fails, return an unprocessable entity (422) response
 		errMessage := http.StatusText(http.StatusUnprocessableEntity)
 		errorResponse := errValidation.ErrValidationResponse(err)
@@ -49,9 +56,12 @@ func (f *FieldController) Create(c *gin.Context) {
 		return
 	}
 
+	fmt.Print("berhasil validasi: ")
+
 	// Call the service layer to create a new Field record
 	result, err := f.service.GetField().Create(c, &request)
 	if err != nil {
+		log.Errorf("error from controller create", err)
 		// If an error occurs while creating the record, return a bad request response
 		response.HTTPResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
@@ -60,6 +70,8 @@ func (f *FieldController) Create(c *gin.Context) {
 		})
 		return
 	}
+
+	fmt.Print("berhasil di buat", result)
 
 	// Return a success response with the created resource
 	response.HTTPResponse(response.ParamHTTPResp{

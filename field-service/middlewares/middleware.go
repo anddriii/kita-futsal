@@ -1,11 +1,13 @@
 package middlewares
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/anddriii/kita-futsal/field-service/clients"
 	"github.com/anddriii/kita-futsal/field-service/common/response"
@@ -102,17 +104,29 @@ func contains(roles []string, role string) bool {
 func CheckRole(roles []string, client clients.IClientRegistry) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		user, err := client.GetUser().GetUserByToken(ctx.Request.Context())
+		fmt.Println("user", user)
 		if err != nil {
-			responUnauthorized(ctx, errCons.ErrUnauthorized.Error())
+			fmt.Printf("error from get check role %s", err)
+			fmt.Println(err)
+			// responUnauthorized(ctx, errCons.ErrUnauthorized.Error())
 			return
 		}
 
 		if !contains(roles, user.Role) {
+			fmt.Printf("error from check role %s", err)
 			responUnauthorized(ctx, errCons.ErrUnauthorized.Error())
 			return
 		}
 		ctx.Next()
 	}
+}
+
+func extractBearerToken(token string) string {
+	arrayToken := strings.Split(token, " ")
+	if len(arrayToken) == 2 {
+		return arrayToken[1]
+	}
+	return ""
 }
 
 func Authenticate() gin.HandlerFunc {
@@ -131,6 +145,10 @@ func Authenticate() gin.HandlerFunc {
 			responUnauthorized(c, err.Error())
 			return
 		}
+
+		tokenString := extractBearerToken(token)
+		tokenUser := c.Request.WithContext(context.WithValue(c.Request.Context(), constants.Token, tokenString))
+		c.Request = tokenUser
 
 		c.Next()
 	}

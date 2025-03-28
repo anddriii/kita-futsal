@@ -40,7 +40,7 @@ func UploadImageLocal(images []multipart.FileHeader) ([]string, error) {
 
 		pathFile := fmt.Sprintf("images/%s-%s-%s", time.Now().Format("20060102150405"), image.Filename, path.Ext(image.Filename))
 
-		basePath, err := filepath.Abs("../../assets/")
+		basePath, err := filepath.Abs("/assets/")
 		if err != nil {
 			return nil, fmt.Errorf("gagal memendapatkan path absolut: %w", err)
 		}

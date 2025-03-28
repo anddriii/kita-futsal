@@ -19,21 +19,21 @@ import (
 
 // PaginationParam merepresentasikan parameter untuk paginasi.
 type PaginationParam struct {
-	Count int64       `json:"count"` // Total jumlah data
-	Page  int         `json:"page"`  // Halaman saat ini
-	Limit int         `json:"limit"` // Jumlah item per halaman
-	Data  interface{} `json:"data"`  // Data yang akan dipaginasi
+	Count int64 `json:"count"` // Total jumlah data
+	Page  int   `json:"page"`  // Halaman saat ini
+	Limit int   `json:"limit"` // Jumlah item per halaman
+	Data  any   `json:"data"`  // Data yang akan dipaginasi
 }
 
 // PaginationResult merepresentasikan hasil dari proses paginasi.
 type PaginationResult struct {
-	TotalPage    int         `json:"totalPage"`    // Total jumlah halaman
-	TotalData    int64       `json:"totalData"`    // Total jumlah data
-	NextPage     *int        `json:"nextPage"`     // Halaman berikutnya (jika ada)
-	PreviousPage *int        `json:"previousPage"` // Halaman sebelumnya (jika ada)
-	Page         int         `json:"page"`         // Halaman saat ini
-	Limit        int         `json:"limit"`        // Jumlah item per halaman
-	Data         interface{} `json:"data"`         // Data yang dipaginasi
+	TotalPage    int   `json:"totalPage"`    // Total jumlah halaman
+	TotalData    int64 `json:"totalData"`    // Total jumlah data
+	NextPage     *int  `json:"nextPage"`     // Halaman berikutnya (jika ada)
+	PreviousPage *int  `json:"previousPage"` // Halaman sebelumnya (jika ada)
+	Page         int   `json:"page"`         // Halaman saat ini
+	Limit        int   `json:"limit"`        // Jumlah item per halaman
+	Data         any   `json:"data"`         // Data yang dipaginasi
 }
 
 // GeneratePagination menghasilkan hasil paginasi berdasarkan parameter yang diberikan.

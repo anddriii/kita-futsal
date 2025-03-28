@@ -74,7 +74,7 @@ var command = cobra.Command{
 		router := gin.Default()
 
 		// Middleware untuk menangani panic dan mengembalikan response yang sesuai
-		router.Use(middlewares.HandlePanic())
+		// router.Use(middlewares.HandlePanic())
 
 		// Handler untuk route yang tidak ditemukan
 		router.NoRoute(func(ctx *gin.Context) {
