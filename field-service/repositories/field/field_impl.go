@@ -12,6 +12,7 @@ import (
 	"github.com/anddriii/kita-futsal/field-service/domains/models"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -99,11 +100,12 @@ func (f *FieldRepository) FindAllWithoutPagination(ctx context.Context) ([]model
 // FindByUUID implements IFieldRepository.
 func (f *FieldRepository) FindByUUID(ctx context.Context, uuid string) (*models.Field, error) {
 	var fields models.Field
-	err := f.db.WithContext(ctx).Where(uuid).First(&fields).Error
+	err := f.db.WithContext(ctx).Where("uuid = ?", uuid).First(&fields).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errWrap.WrapError(errField.ErrFieldNotFound)
 		}
+		logrus.Printf("Syntaq SQL Error %e", err)
 		return nil, errWrap.WrapError(errConst.ErrSQLError)
 	}
 
