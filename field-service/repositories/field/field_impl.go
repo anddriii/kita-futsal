@@ -35,7 +35,7 @@ func (f *FieldRepository) Create(ctx context.Context, req *models.Field) (*model
 
 	fmt.Print("sudah masuk ke database")
 
-	err := f.db.WithContext(ctx).Create(field).Error
+	err := f.db.WithContext(ctx).Create(&field).Error
 	if err != nil {
 		log.Errorf("error from repositories", err)
 		return nil, errWrap.WrapError(errConst.ErrSQLError)

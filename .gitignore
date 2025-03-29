@@ -9,3 +9,4 @@ tmp
 config.json
 setConfig.txt
 user-service/Makefile
+images

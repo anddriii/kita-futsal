@@ -1,61 +1,54 @@
 package util
 
 import (
-	"bytes"
 	"fmt"
 	"io"
-	"log"
 	"mime/multipart"
 	"os"
-	"path"
 	"path/filepath"
 	"time"
 )
 
-func uploadProcces(image multipart.FileHeader) error {
-	file, err := image.Open()
-	if err != nil {
-		return fmt.Errorf("failed to open file: %w", err)
-	}
-	defer file.Close()
-
-	buffer := new(bytes.Buffer)
-	_, err = io.Copy(buffer, file)
-	if err != nil {
-		return fmt.Errorf("failed to copy file: %w", err)
-	}
-
-	return nil
-
-}
-
 func UploadImageLocal(images []multipart.FileHeader) ([]string, error) {
-
 	photoPaths := make([]string, 0, len(images))
+
 	for _, image := range images {
-		err := uploadProcces(image)
+		basePath, err := filepath.Abs("assets/")
 		if err != nil {
-			return nil, fmt.Errorf("failed to looping image: %w", err)
+			return nil, fmt.Errorf("gagal mendapatkan path absolut: %w", err)
 		}
 
-		pathFile := fmt.Sprintf("images/%s-%s-%s", time.Now().Format("20060102150405"), image.Filename, path.Ext(image.Filename))
-
-		basePath, err := filepath.Abs("/assets/")
-		if err != nil {
-			return nil, fmt.Errorf("gagal memendapatkan path absolut: %w", err)
+		// Pastikan folder penyimpanan ada
+		folderPath := filepath.Join(basePath, "images", "field-images")
+		if err := os.MkdirAll(folderPath, os.ModePerm); err != nil {
+			return nil, fmt.Errorf("failed to create directory: %w", err)
 		}
 
-		photoPath := filepath.Join(basePath, "images", "field-images", pathFile)
+		// Tentukan path file
+		photoPath := filepath.Join(folderPath, fmt.Sprintf("%s-%s%s",
+			time.Now().Format("20060102150405"), image.Filename, filepath.Ext(image.Filename)))
 
-		photoPaths = append(photoPaths, photoPath)
-
-		out, err := os.Create(pathFile)
+		// Buat file
+		out, err := os.Create(photoPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create file: %w", err)
 		}
-		log.Println("File saved successfully:", pathFile)
-
 		defer out.Close()
+
+		// Buka file dari multipart
+		file, err := image.Open()
+		if err != nil {
+			return nil, fmt.Errorf("failed to open image: %w", err)
+		}
+		defer file.Close()
+
+		// Salin isi file
+		_, err = io.Copy(out, file)
+		if err != nil {
+			return nil, fmt.Errorf("failed to save image: %w", err)
+		}
+
+		photoPaths = append(photoPaths, photoPath)
 	}
 
 	return photoPaths, nil
