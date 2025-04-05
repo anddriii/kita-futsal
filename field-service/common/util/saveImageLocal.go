@@ -6,50 +6,46 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 )
 
 func UploadImageLocal(images []multipart.FileHeader) ([]string, error) {
-	photoPaths := make([]string, 0, len(images))
+	photoNames := make([]string, 0, len(images))
 
 	for _, image := range images {
-		basePath, err := filepath.Abs("assets/")
+		basePath, err := filepath.Abs("assets/images/field-images")
 		if err != nil {
-			return nil, fmt.Errorf("gagal mendapatkan path absolut: %w", err)
+			return nil, fmt.Errorf("failed to get abs path: %w", err)
 		}
 
-		// Pastikan folder penyimpanan ada
-		folderPath := filepath.Join(basePath, "images", "field-images")
-		if err := os.MkdirAll(folderPath, os.ModePerm); err != nil {
+		if err := os.MkdirAll(basePath, os.ModePerm); err != nil {
 			return nil, fmt.Errorf("failed to create directory: %w", err)
 		}
 
-		// Tentukan path file
-		photoPath := filepath.Join(folderPath, fmt.Sprintf("%s-%s%s",
-			time.Now().Format("20060102150405"), image.Filename, filepath.Ext(image.Filename)))
+		FilenameRemoveSpace := strings.ReplaceAll(image.Filename, " ", "-")
 
-		// Buat file
-		out, err := os.Create(photoPath)
+		fileName := fmt.Sprintf("%s-%s", time.Now().Format("20060102150405"), FilenameRemoveSpace)
+		fullPath := filepath.Join(basePath, fileName)
+
+		out, err := os.Create(fullPath)
 		if err != nil {
-			return nil, fmt.Errorf("failed to create file: %w", err)
+			return nil, err
 		}
 		defer out.Close()
 
-		// Buka file dari multipart
-		file, err := image.Open()
+		in, err := image.Open()
 		if err != nil {
-			return nil, fmt.Errorf("failed to open image: %w", err)
+			return nil, err
 		}
-		defer file.Close()
+		defer in.Close()
 
-		// Salin isi file
-		_, err = io.Copy(out, file)
-		if err != nil {
-			return nil, fmt.Errorf("failed to save image: %w", err)
+		if _, err := io.Copy(out, in); err != nil {
+			return nil, err
 		}
 
-		photoPaths = append(photoPaths, photoPath)
+		photoNames = append(photoNames, fileName)
 	}
 
-	return photoPaths, nil
+	return photoNames, nil
 }

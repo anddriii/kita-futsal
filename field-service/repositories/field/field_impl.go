@@ -49,7 +49,7 @@ func (f *FieldRepository) Create(ctx context.Context, req *models.Field) (*model
 
 // Delete implements IFieldRepository.
 func (f *FieldRepository) Delete(ctx context.Context, uuid string) error {
-	err := f.db.WithContext(ctx).Where(uuid).Delete(&models.Field{}).Error
+	err := f.db.WithContext(ctx).Where("uuid = ?", uuid).Delete(&models.Field{}).Error
 	if err != nil {
 		return errWrap.WrapError(errConst.ErrSQLError)
 	}
@@ -89,8 +89,9 @@ func (f *FieldRepository) FindALlWithPagination(ctx context.Context, param *dto.
 // FindAllWithoutPagination implements IFieldRepository.
 func (f *FieldRepository) FindAllWithoutPagination(ctx context.Context) ([]models.Field, error) {
 	var fileds []models.Field
-	err := f.db.WithContext(ctx).Find(fileds).Error
+	err := f.db.WithContext(ctx).Find(&fileds).Error
 	if err != nil {
+		logrus.Printf("Error repositories: %e", err)
 		return nil, errWrap.WrapError(errConst.ErrSQLError)
 	}
 
@@ -121,7 +122,7 @@ func (f *FieldRepository) Update(ctx context.Context, uuid string, req *models.F
 		PricePerHour: req.PricePerHour,
 	}
 
-	err := f.db.WithContext(ctx).Where("uuid = ?", uuid).Updates(&field).Error
+	err := f.db.WithContext(ctx).Where("uuid = ?", &uuid).Updates(&field).Error
 	if err != nil {
 		return nil, errWrap.WrapError(errConst.ErrSQLError)
 	}

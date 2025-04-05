@@ -11,7 +11,7 @@ type Field struct {
 	ID            uint           `gorm:"primaryKey;autoIncrement;not null"`
 	UUID          uuid.UUID      `gorm:"type:uuid;not null"`
 	Code          string         `gorm:"type:varchar(15);not null"`
-	Name          string         `gorm:"type:varchar(25);not null"`
+	Name          string         `gorm:"type:varchar(100);not null"`
 	Description   string         `gorm:"type:text;not null"`
 	Image         pq.StringArray `gorm:"type:text[];not null"`
 	PricePerHour  int            `gorm:"type:int;not null"`

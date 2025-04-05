@@ -11,6 +11,7 @@ import (
 
 	"github.com/anddriii/kita-futsal/field-service/common/gcs"
 	"github.com/anddriii/kita-futsal/field-service/common/util"
+	"github.com/anddriii/kita-futsal/field-service/constants"
 	errCons "github.com/anddriii/kita-futsal/field-service/constants/error"
 	"github.com/anddriii/kita-futsal/field-service/domains/dto"
 	"github.com/anddriii/kita-futsal/field-service/domains/models"
@@ -180,15 +181,13 @@ func (f *FieldService) uploadImage(ctx context.Context, images []multipart.FileH
 }
 
 func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.FieldResponse, error) {
-	// Path direktori utama untuk local
 
+	//upload image for local
 	photo, err := util.UploadImageLocal(req.Images)
 	if err != nil {
 		log.Errorf("error from service uploadImage", err)
 		return nil, err
 	}
-
-	fmt.Print("berhasil upload photo", photo)
 
 	// upload image for GCPs
 	// imageUrl, err := f.uploadImage(ctx, req.Images)
@@ -207,6 +206,12 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 		return nil, err
 	}
 
+	// response url for local
+	var photoRes []string
+	for _, fileName := range field.Image {
+		photoRes = append(photoRes, constants.BuildFullImagePath(fileName))
+	}
+
 	fmt.Print("berhasil create di service")
 
 	response := dto.FieldResponse{
@@ -214,9 +219,10 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 		Code:         field.Code,
 		Name:         field.Name,
 		PricePerHour: field.PricePerHour,
-		Images:       field.Image,
-		CreatedAt:    field.CreatedAt,
-		UpdateAt:     field.UpdatedAt,
+		// Images:       field.Image, // for GRPc
+		Images:    photoRes, // for local
+		CreatedAt: field.CreatedAt,
+		UpdateAt:  field.UpdatedAt,
 	}
 
 	return &response, nil
@@ -228,15 +234,29 @@ func (f *FieldService) Update(ctx context.Context, uuidParam string, req *dto.Up
 		return nil, err
 	}
 
+	// for Local
 	var imageUrls []string
 	if req.Images == nil {
 		imageUrls = field.Image // Gunakan gambar lama jika tidak ada gambar baru
 	} else {
-		imageUrls, err = f.uploadImage(ctx, req.Images) // Upload gambar baru jika tersedia
+		imageUrls, err = util.UploadImageLocal(req.Images) // Upload gambar baru jika tersedia
 		if err != nil {
 			return nil, err
 		}
 	}
+
+	// for GRPCs
+	// var imageUrls []string
+	// if req.Images == nil {
+	// 	imageUrls = field.Image // Gunakan gambar lama jika tidak ada gambar baru
+	// } else {
+	// 	imageUrls, err = f.uploadImage(ctx, req.Images) // Upload gambar baru jika tersedia
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+
+	//mapping fullpath images
 
 	fieldResult, err := f.repository.GetField().Update(ctx, uuidParam, &models.Field{
 		Code:         req.Code,
@@ -248,13 +268,18 @@ func (f *FieldService) Update(ctx context.Context, uuidParam string, req *dto.Up
 		return nil, err
 	}
 
+	var imageUrlsRes []string
+	for _, fileName := range fieldResult.Image {
+		imageUrlsRes = append(imageUrlsRes, constants.BuildFullImagePath(fileName))
+	}
+
 	uuidParsed, _ := uuid.Parse(uuidParam)
 	response := dto.FieldResponse{
 		UUID:         uuidParsed,
 		Code:         fieldResult.Code,
 		Name:         fieldResult.Name,
 		PricePerHour: fieldResult.PricePerHour,
-		Images:       fieldResult.Image,
+		Images:       imageUrlsRes,
 		CreatedAt:    fieldResult.CreatedAt,
 		UpdateAt:     fieldResult.UpdatedAt,
 	}
