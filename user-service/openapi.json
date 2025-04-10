@@ -150,7 +150,7 @@
                 }
             }
         },
-        "/:uuid":{
+        "/user/:uuid":{
             "get": {
                 "summary": "Get user by uuid",
                 "operationId": "getUserByUuid",
@@ -193,8 +193,50 @@
                     }
                 }
             }
+        },
+        "/:uuid":{
+            "put":{
+                "summary": "Update user by uuid",
+                "operationId": "updateUserByUuid",
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "uuid",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UserResponse"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json":{
+                                "schema":{
+                                    "$ref": "#/components/schemas/UserResponse"
+                                }
+                            }
+                        }
+                    }
+            }
         }
         
+    }
     },
     "components": {
         "schemas": {
