@@ -96,11 +96,10 @@ func (f *FieldScheduleRepository) FindAllWithPagination(ctx context.Context, par
 	}
 
 	// menghitung jumlah total data yang tersedia tanpa pagination.
-	err = f.db.WithContext(ctx).Model(&fieldSchedules).Count(&total).Error
+	err = f.db.WithContext(ctx).Model(&models.FieldSchedule{}).Count(&total).Error
 	if err != nil {
 		return nil, 0, errWrap.WrapError(errConst.ErrSQLError)
 	}
-
 	return fieldSchedules, total, nil
 }
 
@@ -114,6 +113,7 @@ func (f *FieldScheduleRepository) FindByDateAndTimeId(ctx context.Context, date 
 		}
 		return nil, errWrap.WrapError(errConst.ErrSQLError)
 	}
+	fmt.Println("response dari repo", fieldSchedule)
 
 	return &fieldSchedule, nil
 }
@@ -122,14 +122,13 @@ func (f *FieldScheduleRepository) FindByDateAndTimeId(ctx context.Context, date 
 func (f *FieldScheduleRepository) FindByUUID(ctx context.Context, uuid string) (*models.FieldSchedule, error) {
 	var fieldSchedule models.FieldSchedule
 
-	err := f.db.WithContext(ctx).Preload("Field").Preload("Time").Where("uuid = ?", uuid).Error
+	err := f.db.WithContext(ctx).Preload("Field").Preload("Time").Where("uuid = ?", uuid).First(&fieldSchedule).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errWrap.WrapError(errField.ErrFieldScheduleNotFound)
 		}
 		return nil, errWrap.WrapError(errConst.ErrSQLError)
 	}
-
 	return &fieldSchedule, nil
 }
 

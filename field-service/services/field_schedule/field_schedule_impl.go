@@ -106,7 +106,7 @@ func (f *FieldScheduleService) convertMonthName(inputDate string) string {
 		"Dec": "Des",
 	}
 
-	formattedDate := date.Format("28 Sep")
+	formattedDate := date.Format("02 Jan")
 	day := formattedDate[:3]
 	month := formattedDate[3:]
 	formattedDate = fmt.Sprintf("%s %s", day, indonesiaMonth[month])
@@ -117,7 +117,7 @@ func (f *FieldScheduleService) convertMonthName(inputDate string) string {
 // It returns a list of available field schedules for booking on the given date.
 func (f *FieldScheduleService) FindAllFieldByIdAndDate(ctx context.Context, uuid string, date string) ([]dto.FieldScheduleForBookingReponse, error) {
 	// Retrieve field details using UUID
-	field, err := f.repository.GetFieldSchedule().FindByUUID(ctx, uuid)
+	field, err := f.repository.GetField().FindByUUID(ctx, uuid)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +131,7 @@ func (f *FieldScheduleService) FindAllFieldByIdAndDate(ctx context.Context, uuid
 	// Prepare response slice
 	fieldScheduleResults := make([]dto.FieldScheduleForBookingReponse, 0, len(fieldSchedules))
 	for _, fieldSchedule := range fieldSchedules {
-		pricePerHour := float64(field.Field.PricePerHour)
+		pricePerHour := float64(fieldSchedule.Field.PricePerHour)
 		startTime, _ := time.Parse("15:04:05", fieldSchedule.Time.StartTime)
 		endTime, _ := time.Parse("15:04:05", fieldSchedule.Time.EndTime)
 
@@ -144,6 +144,8 @@ func (f *FieldScheduleService) FindAllFieldByIdAndDate(ctx context.Context, uuid
 			Time:         fmt.Sprintf("%s - %s", startTime.Format("15:04"), endTime.Format("15:04")),
 		})
 	}
+
+	fmt.Println("data dari service : /", fieldScheduleResults)
 
 	return fieldScheduleResults, nil
 }
@@ -161,13 +163,14 @@ func (f *FieldScheduleService) FindAllWithPagination(ctx context.Context, param 
 	fieldScheduleResults := make([]dto.FieldScheduleResponse, 0, len(fieldSchedules))
 	for _, schedule := range fieldSchedules {
 		fieldScheduleResults = append(fieldScheduleResults, dto.FieldScheduleResponse{
-			UUID:      schedule.UUID,
-			FieldName: schedule.Field.Name,
-			Date:      schedule.Date.Format("2006-01-02"),
-			Status:    schedule.Status,
-			Time:      fmt.Sprintf("%s - %s", schedule.Time.StartTime, schedule.Time.EndTime),
-			CreatedAt: schedule.CreatedAt,
-			UpdateAt:  schedule.UpdatedAt,
+			UUID:         schedule.UUID,
+			FieldName:    schedule.Field.Name,
+			PricePerHour: schedule.Field.PricePerHour,
+			Date:         schedule.Date.Format("2006-01-02"),
+			Status:       schedule.Status.GetStatusString(),
+			Time:         fmt.Sprintf("%s - %s", schedule.Time.StartTime, schedule.Time.EndTime),
+			CreatedAt:    schedule.CreatedAt,
+			UpdateAt:     schedule.UpdatedAt,
 		})
 	}
 
@@ -192,13 +195,14 @@ func (f *FieldScheduleService) FindByUUID(ctx context.Context, uuid string) (*dt
 	}
 
 	response := dto.FieldScheduleResponse{
-		UUID:      fieldSchedule.UUID,
-		FieldName: fieldSchedule.Field.Name,
-		Date:      fieldSchedule.Date.Format("2006-01-02"),
-		Status:    fieldSchedule.Status.GetStatusString().GetStatusInt(),
-		Time:      fmt.Sprintf("%s - %s", fieldSchedule.Time.StartTime, fieldSchedule.Time.EndTime),
-		CreatedAt: fieldSchedule.CreatedAt,
-		UpdateAt:  fieldSchedule.UpdatedAt,
+		UUID:         fieldSchedule.UUID,
+		FieldName:    fieldSchedule.Field.Name,
+		PricePerHour: fieldSchedule.Field.PricePerHour,
+		Date:         fieldSchedule.Date.Format("2006-01-02"),
+		Status:       fieldSchedule.Status.GetStatusString(),
+		Time:         fmt.Sprintf("%s - %s", fieldSchedule.Time.StartTime, fieldSchedule.Time.EndTime),
+		CreatedAt:    fieldSchedule.CreatedAt,
+		UpdateAt:     fieldSchedule.UpdatedAt,
 	}
 
 	return &response, nil
@@ -317,7 +321,8 @@ func (f *FieldScheduleService) Update(ctx context.Context, uuid string, req *dto
 		UUID:         fieldResult.UUID,
 		FieldName:    fieldResult.Field.Name,
 		Date:         fieldResult.Date.Format(time.DateOnly),
-		PricePerHour: int(fieldSchedule.Status.GetStatusString().GetStatusInt()), // Mengonversi status ke harga per jam
+		PricePerHour: fieldResult.Field.PricePerHour,
+		Status:       fieldResult.Status.GetStatusString(),
 		Time:         fmt.Sprintf("%s - %s", scheduleTime.StartTime, scheduleTime.EndTime),
 		CreatedAt:    fieldResult.CreatedAt,
 		UpdateAt:     fieldResult.UpdatedAt,

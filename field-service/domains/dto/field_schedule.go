@@ -32,12 +32,12 @@ type UpdateFieldScheduleRequest struct {
 }
 
 type FieldScheduleResponse struct {
-	UUID         uuid.UUID                     `json:"uuid"`
-	FieldName    string                        `json:"fieldName"`
-	PricePerHour int                           `json:"pricePerHour"`
-	Date         string                        `json:"date"`
-	Status       constants.FieldScheduleStatus `json:"status"`
-	Time         string                        `json:"time"`
+	UUID         uuid.UUID                         `json:"uuid"`
+	FieldName    string                            `json:"fieldName"`
+	PricePerHour int                               `json:"pricePerHour"`
+	Date         string                            `json:"date"`
+	Status       constants.FieldScheduleStatusName `json:"status"`
+	Time         string                            `json:"time"`
 	CreatedAt    *time.Time
 	UpdateAt     *time.Time
 }
@@ -52,11 +52,11 @@ type FieldScheduleForBookingReponse struct {
 
 type FieldScheduleRequestParam struct {
 	Page       int     `form:"page" validate:"required"`
-	Limit      int     `form:"page" validate:"required"`
+	Limit      int     `form:"limit" validate:"required"`
 	SortColumn *string `form:"sortColumn"`
 	SortOrder  *string `form:"sortOrder"`
 }
 
 type FieldScheduleByFieldIDAndDateRequestParam struct {
-	Date string `json:"date" validate:"required"`
+	Date string `form:"date" validate:"required"`
 }
