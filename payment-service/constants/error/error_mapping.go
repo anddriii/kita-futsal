@@ -1,14 +1,18 @@
 package error
 
 import (
-	errField "github.com/anddriii/kita-futsal/payment-service/constants/error/field"
-	errFieldSchedule "github.com/anddriii/kita-futsal/payment-service/constants/error/field_schedule"
+	errPayment "github.com/anddriii/kita-futsal/payment-service/constants/error/payment"
 )
 
 // ErrMapping checks if an error exists in predefined error lists
 func ErrMapping(err error) bool {
+	var (
+		GeneralErrors = GeneralErrors
+		TimerErrors   = errPayment.PaymentErrors
+	)
 	allErrors := make([]error, 0)
-	allErrors = append(append(GeneralErrors[:], errField.FieldsErrors[:]...), errFieldSchedule.FieldScheduleErr[:]...) // Merging general and user errors)
+	allErrors = append(allErrors, GeneralErrors...)
+	allErrors = append(allErrors, TimerErrors...)
 
 	for _, item := range allErrors {
 		if err.Error() == item.Error() {

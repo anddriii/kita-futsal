@@ -31,6 +31,8 @@ type AppConfig struct {
 	GCSClientX509CertURL       string          `json:"gcsClientX509CertURL"`
 	GCSUniverseDomain          string          `json:"gcsUniverseDomain"`
 	GCSBucketName              string          `json:"gcsBucketName"`
+	Kafka                      Kafka           `json:"kafka"`
+	Midtrans                   Midtrans        `json:"midtrans"`
 }
 
 type database struct {
@@ -52,6 +54,19 @@ type InternalService struct {
 type User struct {
 	Host         string `json:"host"`
 	SignatureKey string `json:"signatureKey"`
+}
+
+type Kafka struct {
+	Brokers  []string `json:"brokers"`
+	Topic    string   `json:"topic"`
+	TimeInMS int64    `json:"timeInMS"`
+	MaxRetry int      `json:"maxRetry"`
+}
+
+type Midtrans struct {
+	ServerKey    string `json:"serverKey"`
+	ClienttKey   string `json:"clientKey"`
+	IsProduction bool   `json:"isProduction"`
 }
 
 /*

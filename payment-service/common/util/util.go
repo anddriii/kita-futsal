@@ -1,9 +1,11 @@
 package util
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
+	"html/template"
 	"math"
 	"os"
 	"path/filepath"
@@ -11,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/dustin/go-humanize"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -195,4 +198,60 @@ func BindFromConsul(dest any, endpoint, path string) error {
 	}
 
 	return nil
+}
+
+// add1 adalah fungsi pembantu yang menerima satu argumen integer dan mengembalikan nilainya setelah ditambah 1.
+// Fungsi ini bisa digunakan di dalam template HTML untuk melakukan operasi penambahan.
+func add1(a int) int {
+	return a + 1
+}
+
+// GeneratePDFFromHTML menerima string template HTML dan data apapun,
+// lalu mengembalikan file PDF dalam bentuk byte slice ([]byte) atau error jika gagal.
+// Fungsi ini memanfaatkan library wkhtmltopdf untuk mengubah HTML ke PDF.
+func GeneratePDFFromHTML(htmlTemplate string, data any) ([]byte, error) {
+	// Membuat funcMap untuk digunakan dalam template. Di sini kita menambahkan fungsi add1 agar bisa dipakai dalam HTML template.
+	funcMap := template.FuncMap{
+		"add1": add1, // Menambahkan fungsi add1 ke dalam template
+	}
+
+	// Parse template HTML dan mengikat funcMap ke dalamnya
+	template, err := template.New("htmlTemplate").Funcs(funcMap).Parse(htmlTemplate)
+	if err != nil {
+		return nil, err // Mengembalikan error jika parsing gagal
+	}
+
+	// Menyimpan hasil eksekusi template ke dalam buffer
+	var filledTemplate bytes.Buffer
+	if err := template.Execute(&filledTemplate, data); err != nil {
+		return nil, err // Mengembalikan error jika eksekusi template gagal
+	}
+	htmlContent := filledTemplate.String() // Mengambil hasil HTML yang sudah diisi data
+
+	// Membuat objek PDF generator menggunakan library wkhtmltopdf
+	pdfGenerator, err := wkhtmltopdf.NewPDFGenerator()
+	if err != nil {
+		logrus.Errorf("Failed to create PDF generator: %v", err)
+		return nil, err // Mengembalikan error jika gagal membuat PDF generator
+	}
+
+	// Mengatur konfigurasi PDF
+	pdfGenerator.Dpi.Set(600)                                     // Resolusi DPI
+	pdfGenerator.NoCollate.Set(false)                             // Aktifkan penggabungan dokumen
+	pdfGenerator.Orientation.Set(wkhtmltopdf.OrientationPortrait) // Orientasi potret
+	pdfGenerator.PageSize.Set(wkhtmltopdf.PageSizeA4)             // Ukuran halaman A4
+	pdfGenerator.Grayscale.Set(false)                             // Nonaktifkan mode grayscale
+
+	// Menambahkan halaman dari HTML yang sudah dirender
+	pdfGenerator.AddPage(wkhtmltopdf.NewPageReader(strings.NewReader(htmlContent)))
+
+	// Membuat PDF
+	err = pdfGenerator.Create()
+	if err != nil {
+		logrus.Errorf("Failed to create PDF: %v", err)
+		return nil, err // Mengembalikan error jika proses generate PDF gagal
+	}
+
+	// Mengembalikan PDF dalam bentuk byte slice
+	return pdfGenerator.Bytes(), nil
 }
