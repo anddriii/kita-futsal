@@ -37,10 +37,10 @@ type ItemDetail struct {
 // PaymentRequestParam digunakan untuk menerima parameter query ketika meminta daftar pembayaran,
 // misalnya pada endpoint GET /payments?page=1&limit=10&sortColumn=createdAt&sortOrder=desc
 type PaymentRequestParam struct {
-	Page       int    `form:"page" validate:"required"`  // Halaman saat ini
-	Limit      int    `form:"limit" validate:"required"` // Batas jumlah data per halaman
-	SortColumn string `form:"sortColumn"`                // Kolom untuk melakukan pengurutan
-	SortOrder  string `form:"sortOrder"`                 // Urutan pengurutan (ASC/DESC)
+	Page       int     `form:"page" validate:"required"`  // Halaman saat ini
+	Limit      int     `form:"limit" validate:"required"` // Batas jumlah data per halaman
+	SortColumn *string `form:"sortColumn"`                // Kolom untuk melakukan pengurutan
+	SortOrder  *string `form:"sortOrder"`                 // Urutan pengurutan (ASC/DESC)
 }
 
 // UpdatePaymentRequest digunakan untuk memperbarui informasi status pembayaran,
