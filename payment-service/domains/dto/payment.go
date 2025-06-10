@@ -58,8 +58,8 @@ type UpdatePaymentRequest struct {
 // PaymentResponse adalah struktur data yang dikirimkan kembali ke client/merchant
 // setelah permintaan pembayaran berhasil dibuat atau saat mengambil detail pembayaran.
 type PaymentResponse struct {
-	UUID          string                        `json:"uuid"`                    // UUID unik pembayaran
-	OrderID       string                        `json:"orderID"`                 // ID pesanan
+	UUID          uuid.UUID                     `json:"uuid"`                    // UUID unik pembayaran
+	OrderID       uuid.UUID                     `json:"orderID"`                 // ID pesanan
 	Amount        float64                       `json:"amount"`                  // Total jumlah pembayaran
 	Status        constants.PaymentStatusString `json:"status"`                  // Status pembayaran dalam bentuk string
 	PaymentLink   string                        `json:"paymentLink"`             // Link untuk melakukan pembayaran
@@ -78,7 +78,7 @@ type PaymentResponse struct {
 // Webhook merepresentasikan payload yang diterima dari Midtrans saat ada notifikasi status pembayaran.
 // Struktur ini disesuaikan dengan format JSON yang dikirimkan oleh Midtrans (notification API).
 type Webhook struct {
-	VANumber          []VANumber                    `json:"va_numbers"`         // Daftar nomor VA
+	VANumbers         []VANumber                    `json:"va_numbers"`         // Daftar nomor VA
 	TransactionTime   string                        `json:"transaction_time"`   // Waktu transaksi dilakukan
 	TransactionStatus constants.PaymentStatusString `json:"transaction_status"` // Status transaksi
 	TransactionID     string                        `json:"transaction_id"`     // ID transaksi dari gateway
