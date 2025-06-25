@@ -37,9 +37,9 @@ func NewKafkaProducer(brokers []string) IKafka {
 func (k *Kafka) ProduceMessage(topic string, data []byte) error {
 	// Konfigurasi producer Kafka menggunakan sarama
 	config := sarama.NewConfig()
-	config.Producer.Return.Successes = true                     // Aktifkan pelaporan keberhasilan
+	config.Producer.Return.Successes = true
 	config.Producer.RequiredAcks = sarama.WaitForAll            // Tunggu ack dari semua broker
-	config.Producer.Retry.Max = configApp.Config.Kafka.MaxRetry // Ambil retry max dari konfigurasi aplikasi
+	config.Producer.Retry.Max = configApp.Config.Kafka.MaxRetry // Ambil retry max dari conf
 
 	// Inisialisasi producer sinkron
 	producer, err := sarama.NewSyncProducer(k.brokers, config)
@@ -48,7 +48,6 @@ func (k *Kafka) ProduceMessage(topic string, data []byte) error {
 		return err
 	}
 
-	// Pastikan producer ditutup setelah digunakan
 	defer func(producer sarama.SyncProducer) {
 		err = producer.Close()
 		if err != nil {
@@ -57,10 +56,9 @@ func (k *Kafka) ProduceMessage(topic string, data []byte) error {
 		}
 	}(producer)
 
-	// Buat pesan Kafka
 	message := &sarama.ProducerMessage{
-		Topic:   topic,                    // Nama topik Kafka
-		Headers: nil,                      // (Opsional) header bisa ditambahkan jika perlu
+		Topic:   topic, // Nama topik Kafka
+		Headers: nil,
 		Value:   sarama.ByteEncoder(data), // Payload sebagai byte encoder
 	}
 
