@@ -18,7 +18,7 @@ type IControllerRegistry interface {
 	GetPayment() controllers.IPaymentController
 }
 
-func NewRegistry(service service.IServiceRegistry) IControllerRegistry {
+func NewControllerRegistry(service service.IServiceRegistry) IControllerRegistry {
 	return &Registry{
 		service: service,
 	}
