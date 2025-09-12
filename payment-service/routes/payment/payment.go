@@ -43,6 +43,6 @@ func (p *PaymentRoute) Run() {
 		constants.User,
 	}, p.client), p.controller.GetPayment().GetByUUID)
 	group.POST("", middlewares.CheckRole([]string{
-		constants.User,
+		constants.Admin,
 	}, p.client), p.controller.GetPayment().Create)
 }

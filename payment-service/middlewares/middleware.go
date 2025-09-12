@@ -107,14 +107,15 @@ func contains(roles []string, role string) bool {
 func CheckRole(roles []string, client clients.IClientRegistry) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		user, err := client.GetUser().GetUserByToken(ctx.Request.Context())
-		fmt.Println("user", user)
+		// fmt.Println("user", user)
 		if err != nil {
 			fmt.Printf("error from get check role %s", err)
 			return
 		}
 
 		if !contains(roles, user.Role) {
-			fmt.Printf("error from check role %s", err)
+			fmt.Printf("unauthorized: user role %s not in %v\n", user.Role, roles)
+			fmt.Println("role user:", user.Role)
 			responUnauthorized(ctx, errCons.ErrUnauthorized.Error())
 			return
 		}

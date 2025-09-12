@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"fmt"
 	"time"
 
 	errConstant "github.com/anddriii/kita-futsal/payment-service/constants/error/payment"
@@ -107,6 +108,8 @@ func (c *MidtransClient) CreatePaymentLink(request *dto.PaymentRequest) (*Midtra
 			Duration: expiryDuration,
 		},
 	}
+
+	fmt.Printf("Midtrans Snap Request: %+v\n", req)
 
 	// Kirim request transaksi ke Midtrans Snap API
 	response, err := snapClient.CreateTransaction(req)

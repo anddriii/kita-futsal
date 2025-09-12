@@ -1,0 +1,21 @@
+name: kita-futsal-app
+services:
+  field-service:
+    container_name: field-service
+    platform: linux/amd64
+#    image: anddriii/user-service:1 // build ketika di server
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    env_file:
+      - .env
+    networks:
+      - kita-futsal_default
+      - kita-futsal-app_default
+networks:
+  kita-futsal_default:
+    external: true
+  kita-futsal-app_default:
+    external: true

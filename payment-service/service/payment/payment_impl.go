@@ -56,8 +56,10 @@ func (p *PaymentService) Create(ctx context.Context, req *dto.PaymentRequest) (*
 		// Membuat payment link dari Midtrans
 		midtrans, txErr = p.midtrans.CreatePaymentLink(req)
 		if txErr != nil {
+			fmt.Printf("error from midtrans create payment link %s", txErr)
 			return txErr
 		}
+		fmt.Printf("midtrans response: %+v\n", midtrans)
 
 		// Persiapan data request untuk disimpan ke database
 		paymentRequest := &dto.PaymentRequest{
