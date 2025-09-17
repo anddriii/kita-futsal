@@ -1,4 +1,4 @@
-name: kita-futsal-app
+name: kita-futsal
 services:
   user-service:
     container_name: user-service
@@ -11,11 +11,8 @@ services:
       - "8001:8001"
     env_file:
       - .env
-    networks:
-      - kita-futsal_default
-      - kita-futsal-app_default
 networks:
-  kita-futsal_default:
+  host:
     external: true
-  kita-futsal-app_default:
-    external: true
+  local-network:
+    driver: bridge
