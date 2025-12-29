@@ -25,7 +25,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Home Page | Mini Soccer",
+  title: "Home Page | Kita Futsal",
   icons: "/images/bwa-icon.svg",
 };
 

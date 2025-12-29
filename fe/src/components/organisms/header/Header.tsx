@@ -29,7 +29,7 @@ export default function Header(props: HeaderProps) {
         <div className="container">
           <div className="site-navigation">
             <Link href="/" className="logo m-0"
-            >Mini Soccer <span className="text-primary">.</span></Link>
+            >Kita Futsal <span className="text-primary">.</span></Link>
             <ul
               className="js-clone-nav d-none d-lg-inline-block text-left site-menu float-right"
             >
@@ -74,7 +74,7 @@ export default function Header(props: HeaderProps) {
 
       <nav className="navbar navbar-expand-lg navbar-light d-lg-none d-sm-block bg-light">
         <Link href="/" className="logo-mobile m-0"
-        >Mini Soccer <span className="text-secondary">.</span></Link>
+        >Kita Futsal <span className="text-secondary">.</span></Link>
         <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
           <span className="navbar-toggler-icon"></span>

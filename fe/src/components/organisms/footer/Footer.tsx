@@ -16,7 +16,7 @@ export default function Footer() {
             <div className="row">
               <div className="col-md-6 col-lg-4">
                 <div className="widget">
-                  <h3 className="heading poppins-bold">BWA Mini Soccer</h3>
+                  <h3 className="heading poppins-bold">Kita Futsal</h3>
                   <p className="poppins-regular">
                     Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero illo delectus maxime voluptatem
                     iure? Neque?

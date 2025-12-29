@@ -12,7 +12,7 @@ export default function Register() {
             <div className={`${styles['row-form']} row align-items-center justify-content-center`}>
               <div className={`col-md-10 ${styles['register-form']}`}>
                 <div className="d-flex justify-content-between align-items-center">
-                  <h3 className={`${styles['poppins-bold']}`}>BWA Mini Soccer</h3>
+                  <h3 className={`${styles['poppins-bold']}`}>Kita Futsal</h3>
                   <Link href="/">
                     <i className="fa-solid fa-house fa-xl" style={{color: '#D90E1E'}}></i>
                   </Link>

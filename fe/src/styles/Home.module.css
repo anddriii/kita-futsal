@@ -12,12 +12,12 @@
 }
 
 .btn.btn-primary {
-  background: #D90D1E;
-  border-color: #D90D1E;
+  background: #43caff;
+  border-color: #0dcbd9;
 }
 .btn.btn-primary:hover {
-  border-color: #BF0426;
-  background: #BF0426;
+  border-color: #1c99ff;
+  background: #049abf;
 }
 
 .caption {

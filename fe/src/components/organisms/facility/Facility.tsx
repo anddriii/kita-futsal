@@ -11,9 +11,7 @@ export default function Facility() {
                 Fasilitas
               </h2>
               <p className="poppins-regular">
-                Lorem, ipsum dolor sit amet consectetur adipisicing elit. Magnam
-                nam libero voluptates quis dolorum repellendus, ipsa tempora quo
-                earum temporibus.
+                Tempat futsal ini dilengkapi dengan lapangan sintetis berkualitas dengan pencahayaan yang terang, sehingga nyaman digunakan siang maupun malam. Tersedia ruang ganti dan kamar mandi bersih, area parkir yang memadai, serta tempat duduk untuk penonton. Selain itu, ada kantin kecil yang menyediakan minuman dan snack untuk menambah kenyamanan pengunjung.
               </p>
             </div>
           </div>
