@@ -93,6 +93,6 @@ type IFieldClient interface {
 	UpdateStatus(request *dto.UpdateFieldScheduleStatusRequest) error
 }
 
-func NewfieldClient(client config.IClientConfig) IFieldClient {
+func NewFieldClient(client config.IClientConfig) IFieldClient {
 	return &FieldClient{client: client}
 }
