@@ -1,0 +1,15 @@
+package models
+
+import (
+	"time"
+
+	"github.com/anddriii/kita-futsal/order-service/constants"
+)
+
+type OrderHistory struct {
+	ID        uint                        `gorm:"primaryKey;autoIncrement"`
+	OrderID   uint                        `gorm:"type:bigint;not null"`
+	Status    constants.OrderStatusString `gorm:"type:varchar(30);not null"`
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+}
