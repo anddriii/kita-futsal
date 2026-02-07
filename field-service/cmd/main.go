@@ -73,6 +73,9 @@ var command = cobra.Command{
 		// Membuat instance router Gin
 		router := gin.Default()
 
+		//membuat static route agar foto bisa diakses
+		router.Static("/assets", "/app/assets")
+
 		// Middleware untuk menangani panic dan mengembalikan response yang sesuai
 		// router.Use(middlewares.HandlePanic())
 

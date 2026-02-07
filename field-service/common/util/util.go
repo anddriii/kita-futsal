@@ -41,25 +41,27 @@ func GeneratePagination(params PaginationParam) PaginationResult {
 	totalPage := int(math.Ceil(float64(params.Count) / float64(params.Limit)))
 
 	var (
-		nextPage     int
-		previousPage int
+		nextPage     *int
+		previousPage *int
 	)
 
 	// Menentukan halaman berikutnya jika masih ada
 	if params.Page < totalPage {
-		nextPage = params.Page + 1
+		n := params.Page + 1
+		nextPage = &n
 	}
 
 	// Menentukan halaman sebelumnya jika lebih dari 1
 	if params.Page > 1 {
-		previousPage = params.Page - 1
+		p := params.Page - 1
+		previousPage = &p
 	}
 
 	return PaginationResult{
 		TotalPage:    totalPage,
 		TotalData:    params.Count,
-		NextPage:     &nextPage,
-		PreviousPage: &previousPage,
+		NextPage:     nextPage,
+		PreviousPage: previousPage,
 		Page:         params.Page,
 		Limit:        params.Limit,
 		Data:         params.Data,

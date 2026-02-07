@@ -14,10 +14,7 @@ func UploadImageLocal(images []multipart.FileHeader) ([]string, error) {
 	photoNames := make([]string, 0, len(images))
 
 	for _, image := range images {
-		basePath, err := filepath.Abs("assets/images/field-images")
-		if err != nil {
-			return nil, fmt.Errorf("failed to get abs path: %w", err)
-		}
+		basePath := "/app/assets/images/field-images"
 
 		if err := os.MkdirAll(basePath, os.ModePerm); err != nil {
 			return nil, fmt.Errorf("failed to create directory: %w", err)

@@ -11,6 +11,8 @@ services:
       - "8002:8002"
     env_file:
       - .env
+    volumes:
+      - ./assets:/app/assets
 networks:
   host:
     external: true

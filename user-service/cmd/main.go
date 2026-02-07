@@ -95,7 +95,7 @@ var command = cobra.Command{
 
 		// Middleware untuk membatasi jumlah permintaan (Rate Limiting)
 		lmt := tollbooth.NewLimiter(
-			config.Config.RateLimitMaxRequest,
+			config.Config.RateLimiterMaxRequest,
 			&limiter.ExpirableOptions{
 				DefaultExpirationTTL: time.Duration(config.Config.RateLimiterTimeSecond) * time.Second,
 			},

@@ -73,12 +73,20 @@ func (f *FieldRepository) FindALlWithPagination(ctx context.Context, param *dto.
 
 	limit := param.Limit
 	offset := (param.Page - 1) * limit
-	err := f.db.WithContext(ctx).Limit(limit).Offset(offset).Order(sort).Find(&fields).Error
+
+	err := f.db.WithContext(ctx).
+		Order(sort).
+		Limit(limit).
+		Offset(offset).
+		Find(&fields).Error
 	if err != nil {
 		return nil, 0, errWrap.WrapError(errConst.ErrSQLError)
 	}
 
-	err = f.db.WithContext(ctx).Model(&fields).Count(&total).Error
+	// ✅ hitung total data TANPA limit & offset
+	err = f.db.WithContext(ctx).
+		Model(&models.Field{}).
+		Count(&total).Error
 	if err != nil {
 		return nil, 0, errWrap.WrapError(errConst.ErrSQLError)
 	}

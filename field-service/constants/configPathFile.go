@@ -12,7 +12,7 @@ const (
 func BuildFullImagePath(fileName string) string {
 	baseURL := os.Getenv("BASE_URL") // ex: http://localhost:8080
 	if baseURL == "" {
-		baseURL = "http://localhost:8080" // fallback
+		baseURL = "http://localhost:8002" // fallback
 	}
 	return fmt.Sprintf("%s%s%s", baseURL, FieldImagePathPrefix, fileName)
 }

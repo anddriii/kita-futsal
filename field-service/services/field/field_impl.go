@@ -41,12 +41,18 @@ func (f *FieldService) GetAllWithPagination(ctx context.Context, param *dto.Fiel
 	// Mengonversi data field ke format FieldResponse
 	fieldResults := make([]dto.FieldResponse, 0, len(fields))
 	for _, field := range fields {
+		var photoRes []string
+
+		for _, fileName := range field.Image {
+			photoRes = append(photoRes, constants.BuildFullImagePath(fileName))
+		}
+
 		fieldResults = append(fieldResults, dto.FieldResponse{
 			UUID:         field.UUID,
 			Code:         field.Code,
 			Name:         field.Name,
 			PricePerHour: field.PricePerHour,
-			Images:       field.Image,
+			Images:       photoRes,
 			CreatedAt:    field.CreatedAt,
 			UpdateAt:     field.UpdatedAt,
 		})
@@ -71,11 +77,17 @@ func (f *FieldService) GetAllWithoutPagination(ctx context.Context) ([]dto.Field
 
 	fieldResults := make([]dto.FieldResponse, 0, len(fields))
 	for _, field := range fields {
+		var photoRes []string
+
+		for _, fileName := range field.Image {
+			photoRes = append(photoRes, constants.BuildFullImagePath(fileName))
+		}
+
 		fieldResults = append(fieldResults, dto.FieldResponse{
 			UUID:         field.UUID,
 			Name:         field.Name,
 			PricePerHour: field.PricePerHour,
-			Images:       field.Image,
+			Images:       photoRes,
 		})
 	}
 
@@ -88,13 +100,18 @@ func (f *FieldService) GetByUUID(ctx context.Context, uuid string) (*dto.FieldRe
 		return nil, err
 	}
 
+	var photoRes []string
+	for _, fileName := range field.Image {
+		photoRes = append(photoRes, constants.BuildFullImagePath(fileName))
+	}
+
 	pricePerHour := float64(field.PricePerHour)
 	fieldResult := dto.FieldResponse{
 		UUID:         field.UUID,
 		Code:         field.Code,
 		Name:         field.Name,
 		PricePerHour: util.RupiahFormat(&pricePerHour),
-		Images:       field.Image,
+		Images:       photoRes,
 		CreatedAt:    field.CreatedAt,
 		UpdateAt:     field.UpdatedAt,
 	}

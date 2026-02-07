@@ -16,7 +16,7 @@ type AppConfig struct {
 	AppEnv                string   `json:"appEnv"`
 	SignatureKey          string   `json:"signatureKey"`
 	Database              database `json:"database"`
-	RateLimitMaxRequest   float64  `json:"rateLimiterMaxRequest"`
+	RateLimiterMaxRequest float64  `json:"rateLimiterMaxRequest"`
 	RateLimiterTimeSecond int      `json:"rateLimiterTimeSecond"`
 	JwtSecretKey          string   `json:"jwtSecretKey"`
 	JwtExpirationTime     int      `json:"jwtExpirationTime"`
@@ -42,7 +42,7 @@ func Init() {
 	err := util.BindFromJson(&Config, "config.json", ".")
 	if err != nil {
 		logrus.Infof("Failed to bind config: %v", err)
-		err := util.BindFromConsul(Config, os.Getenv("CONSUL_HTTP_URL"), os.Getenv("CONSUL_HTTP_PATH"))
+		err := util.BindFromConsul(&Config, os.Getenv("CONSUL_HTTP_URL"), os.Getenv("CONSUL_HTTP_PATH"))
 		if err != nil {
 			panic(err)
 		}
