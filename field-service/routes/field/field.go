@@ -32,6 +32,7 @@ func (f *FieldRoute) Run() {
 	//endpoint without login
 	group.GET("", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetAllWithoutPagination)
 	group.GET("/:uuid", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetByUUID)
+	group.GET("/nearby", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetNearbyFields)
 
 	//Middleware autentikasi diterapkan ke seluruh route berikutnya
 	group.Use(middlewares.Authenticate())

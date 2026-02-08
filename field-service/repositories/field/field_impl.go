@@ -31,6 +31,8 @@ func (f *FieldRepository) Create(ctx context.Context, req *models.Field) (*model
 		Code:         req.Code,
 		Name:         req.Name,
 		Image:        req.Image,
+		Latitude:     req.Latitude,
+		Lonitude:     req.Lonitude,
 		PricePerHour: req.PricePerHour,
 	}
 
@@ -83,7 +85,7 @@ func (f *FieldRepository) FindALlWithPagination(ctx context.Context, param *dto.
 		return nil, 0, errWrap.WrapError(errConst.ErrSQLError)
 	}
 
-	// ✅ hitung total data TANPA limit & offset
+	// hitung total data TANPA limit & offset
 	err = f.db.WithContext(ctx).
 		Model(&models.Field{}).
 		Count(&total).Error
@@ -127,6 +129,8 @@ func (f *FieldRepository) Update(ctx context.Context, uuid string, req *models.F
 		Code:         req.Code,
 		Name:         req.Name,
 		Image:        req.Image,
+		Latitude:     req.Latitude,
+		Lonitude:     req.Lonitude,
 		PricePerHour: req.PricePerHour,
 	}
 

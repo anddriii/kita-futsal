@@ -56,6 +56,7 @@ var command = cobra.Command{
 			&models.FieldSchedule{},
 			&models.Time{},
 		)
+		fmt.Println(models.Field{})
 		if err != nil {
 			log.Fatalf("error in migrate %s", err)
 			panic(err)

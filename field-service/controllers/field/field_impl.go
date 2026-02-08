@@ -18,6 +18,53 @@ type FieldController struct {
 	service services.IServiceRegistry
 }
 
+// GetNearbyFields implements IFieldController.
+func (f *FieldController) GetNearbyFields(ctx *gin.Context) {
+	var params dto.NearbyFields
+	err := ctx.ShouldBindQuery(&params)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  ctx,
+		})
+		return
+	}
+
+	validate := validator.New()
+	err = validate.Struct(params)
+	if err != nil {
+		errMessage := http.StatusText(http.StatusUnprocessableEntity)
+		errResponse := errValidation.ErrValidationResponse(err)
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code:    http.StatusBadRequest,
+			Err:     err,
+			Message: &errMessage,
+			Data:    errResponse,
+			Gin:     ctx,
+		})
+		return
+	}
+
+	fmt.Println("param dari conntroller ", params)
+
+	result, err := f.service.GetField().GetNearbyFields(ctx, &params)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  ctx,
+		})
+		return
+	}
+
+	response.HTTPResponse(response.ParamHTTPResp{
+		Code: http.StatusOK,
+		Data: result,
+		Gin:  ctx,
+	})
+}
+
 // Create implements IFieldController and handles the creation of a Field resource.
 func (f *FieldController) Create(c *gin.Context) {
 	// Define a variable to hold the request payload

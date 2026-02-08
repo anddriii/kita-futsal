@@ -10,6 +10,7 @@ import (
 type IFieldService interface {
 	GetAllWithPagination(ctx context.Context, param *dto.FieldRequestParam) (*util.PaginationResult, error)
 	GetAllWithoutPagination(ctx context.Context) ([]dto.FieldResponse, error)
+	GetNearbyFields(ctx context.Context, cordinate *dto.NearbyFields) ([]dto.FieldResponse, error)
 	GetByUUID(ctx context.Context, uuid string) (*dto.FieldResponse, error)
 	Create(ctx context.Context, req *dto.FieldRequest) (*dto.FieldResponse, error)
 	Update(ctx context.Context, uuid string, req *dto.UpdateFieldRequest) (*dto.FieldResponse, error)

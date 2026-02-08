@@ -32,6 +32,38 @@ func NewFieldService(repository repositories.IRepoRegistry, gcs gcs.IGCSClient) 
 	}
 }
 
+// GetFieldsNearby implements IFieldService.
+func (f *FieldService) GetNearbyFields(ctx context.Context, cordinate *dto.NearbyFields) ([]dto.FieldResponse, error) {
+	// mengambil kordinate user
+	userLat := cordinate.Latitude
+	userLong := cordinate.Lonitude
+
+	allFields, err := f.repository.GetField().FindAllWithoutPagination(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var nearbyFields []dto.FieldResponse
+
+	// 4. Looping & Hitung Haversine
+	for _, field := range allFields {
+		// Panggil fungsi rumus Haversine
+		distance := util.CalculateHaversine(userLat, userLong, field.Latitude, field.Lonitude)
+		fmt.Println("cordinate lapangan dari service", field.Latitude, field.Lonitude)
+		// Opsional: Filter kalo kejauhan (misal > 10 KM gak usah dimasukin)
+		if distance <= 10.0 {
+			// Masukin ke list hasil, JANGAN LUPA masukin info jaraknya
+			nearbyFields = append(nearbyFields, dto.FieldResponse{
+				Name: field.Name,
+
+				Distance: distance, // Ini penting buat ditampilin di UI (misal: "1.2 KM")
+			})
+		}
+	}
+
+	return nearbyFields, nil
+}
+
 func (f *FieldService) GetAllWithPagination(ctx context.Context, param *dto.FieldRequestParam) (*util.PaginationResult, error) {
 	fields, total, err := f.repository.GetField().FindALlWithPagination(ctx, param)
 	if err != nil {
@@ -84,10 +116,15 @@ func (f *FieldService) GetAllWithoutPagination(ctx context.Context) ([]dto.Field
 		}
 
 		fieldResults = append(fieldResults, dto.FieldResponse{
+			Code:         field.Code,
 			UUID:         field.UUID,
 			Name:         field.Name,
+			Latitude:     field.Latitude,
+			Lonitude:     field.Lonitude,
 			PricePerHour: field.PricePerHour,
 			Images:       photoRes,
+			CreatedAt:    field.CreatedAt,
+			UpdateAt:     field.UpdatedAt,
 		})
 	}
 
@@ -112,6 +149,8 @@ func (f *FieldService) GetByUUID(ctx context.Context, uuid string) (*dto.FieldRe
 		Name:         field.Name,
 		PricePerHour: util.RupiahFormat(&pricePerHour),
 		Images:       photoRes,
+		Latitude:     field.Latitude,
+		Lonitude:     field.Lonitude,
 		CreatedAt:    field.CreatedAt,
 		UpdateAt:     field.UpdatedAt,
 	}
@@ -215,6 +254,8 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 	field, err := f.repository.GetField().Create(ctx, &models.Field{
 		Code:         req.Code,
 		Name:         req.Name,
+		Latitude:     req.Latitude,
+		Lonitude:     req.Lonitude,
 		PricePerHour: req.PricePerHour,
 		Image:        photo,
 	})
@@ -238,6 +279,8 @@ func (f *FieldService) Create(ctx context.Context, req *dto.FieldRequest) (*dto.
 		PricePerHour: field.PricePerHour,
 		// Images:       field.Image, // for GRPc
 		Images:    photoRes, // for local
+		Latitude:  field.Latitude,
+		Lonitude:  field.Lonitude,
 		CreatedAt: field.CreatedAt,
 		UpdateAt:  field.UpdatedAt,
 	}
@@ -278,6 +321,8 @@ func (f *FieldService) Update(ctx context.Context, uuidParam string, req *dto.Up
 	fieldResult, err := f.repository.GetField().Update(ctx, uuidParam, &models.Field{
 		Code:         req.Code,
 		Name:         req.Name,
+		Latitude:     req.Latitude,
+		Lonitude:     req.Lonitude,
 		PricePerHour: req.PricePerHour,
 		Image:        imageUrls,
 	})
@@ -297,6 +342,8 @@ func (f *FieldService) Update(ctx context.Context, uuidParam string, req *dto.Up
 		Name:         fieldResult.Name,
 		PricePerHour: fieldResult.PricePerHour,
 		Images:       imageUrlsRes,
+		Latitude:     field.Latitude,
+		Lonitude:     field.Lonitude,
 		CreatedAt:    fieldResult.CreatedAt,
 		UpdateAt:     fieldResult.UpdatedAt,
 	}
