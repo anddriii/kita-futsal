@@ -15,8 +15,8 @@ type Field struct {
 	Description string    `gorm:"type:text;not null"`
 	// Image       datatypes.JSON `gorm:"type:json;not null"`
 	Image         pq.StringArray `gorm:"type:text[];not null"`
-	Latitude      float64        `gorm:"type:decimal(10,8)"`
-	Lonitude      float64        `gorm:"type:decimal(11,8)"`
+	Latitude      float64        `gorm:"type:decimal(10,8);not null"`
+	Lonitude      float64        `gorm:"type:decimal(11,8);not null"`
 	PricePerHour  int            `gorm:"type:int;not null"`
 	CreatedAt     *time.Time
 	UpdatedAt     *time.Time

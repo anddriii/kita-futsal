@@ -45,18 +45,18 @@ func (f *FieldService) GetNearbyFields(ctx context.Context, cordinate *dto.Nearb
 
 	var nearbyFields []dto.FieldResponse
 
-	// 4. Looping & Hitung Haversine
 	for _, field := range allFields {
-		// Panggil fungsi rumus Haversine
 		distance := util.CalculateHaversine(userLat, userLong, field.Latitude, field.Lonitude)
-		fmt.Println("cordinate lapangan dari service", field.Latitude, field.Lonitude)
-		// Opsional: Filter kalo kejauhan (misal > 10 KM gak usah dimasukin)
-		if distance <= 10.0 {
-			// Masukin ke list hasil, JANGAN LUPA masukin info jaraknya
-			nearbyFields = append(nearbyFields, dto.FieldResponse{
-				Name: field.Name,
+		// fmt.Println("cordinate lapangan dari service", field.Latitude, field.Lonitude)
 
-				Distance: distance, // Ini penting buat ditampilin di UI (misal: "1.2 KM")
+		if distance <= 10.0 {
+			nearbyFields = append(nearbyFields, dto.FieldResponse{
+				UUID:         field.UUID,
+				Name:         field.Name,
+				Code:         field.Code,
+				PricePerHour: field.PricePerHour,
+				Images:       field.Image,
+				Distance:     distance,
 			})
 		}
 	}

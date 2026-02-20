@@ -219,7 +219,7 @@ func (u *UserService) Update(ctx context.Context, req *dto.UpdateRequest, uuid s
 	}
 
 	data = dto.UserResponse{
-		UUID:        userResult.UUID,
+		UUID:        user.UUID,
 		Name:        userResult.Name,
 		Username:    userResult.Username,
 		Email:       userResult.Email,
