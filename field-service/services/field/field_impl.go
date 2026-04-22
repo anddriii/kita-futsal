@@ -49,14 +49,23 @@ func (f *FieldService) GetNearbyFields(ctx context.Context, cordinate *dto.Nearb
 		distance := util.CalculateHaversine(userLat, userLong, field.Latitude, field.Lonitude)
 		// fmt.Println("cordinate lapangan dari service", field.Latitude, field.Lonitude)
 
+		var photoRes []string
+		for _, fileName := range field.Image {
+			photoRes = append(photoRes, constants.BuildFullImagePath(fileName))
+		}
+
 		if distance <= 10.0 {
 			nearbyFields = append(nearbyFields, dto.FieldResponse{
 				UUID:         field.UUID,
 				Name:         field.Name,
 				Code:         field.Code,
 				PricePerHour: field.PricePerHour,
-				Images:       field.Image,
+				Latitude:     field.Latitude,
+				Lonitude:     field.Lonitude,
+				Images:       photoRes,
 				Distance:     distance,
+				CreatedAt:    field.CreatedAt,
+				UpdateAt:     field.UpdatedAt,
 			})
 		}
 	}

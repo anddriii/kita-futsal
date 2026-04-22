@@ -7,6 +7,7 @@ bin
 tmp
 
 config.json
+config_gcs.json
 setConfig.txt
 user-service/Makefile
 images

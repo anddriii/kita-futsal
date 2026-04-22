@@ -1,9 +1,9 @@
-name: kita-futsal-app
+name: kita-futsal
 services:
-  user-service:
+  payment-service:
     container_name: payment-service
     platform: linux/amd64
-#    image: anddriii/user-service:1 // build ketika di server
+#    image: anddriii/payment-service:1 // build ketika di server
     build:
       context: .
       dockerfile: Dockerfile
