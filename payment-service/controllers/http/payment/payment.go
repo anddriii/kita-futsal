@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	errValidation "github.com/anddriii/kita-futsal/payment-service/common/error"
@@ -15,153 +16,147 @@ type PaymentController struct {
 	service service.IServiceRegistry
 }
 
-// Create implements IPaymentController.
-func (p *PaymentController) Create(ctx *gin.Context) {
-	var request dto.PaymentRequest
-	err := ctx.ShouldBindJSON(&request)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-		return
-	}
-
-	validate := validator.New()
-	if err := validate.Struct(request); err != nil {
-		errMessage := http.StatusText(http.StatusUnprocessableEntity)
-		errResponse := errValidation.ErrValidationResponse(err)
-		response.HTTPResponse(response.ParamHTTPResp{
-			Err:     err,
-			Code:    http.StatusUnprocessableEntity,
-			Message: &errMessage,
-			Data:    errResponse,
-			Gin:     ctx,
-		})
-		return
-	}
-
-	result, err := p.service.GetPayment().Create(ctx, &request)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-		return
-	}
-
-	response.HTTPResponse(response.ParamHTTPResp{
-		Code: http.StatusCreated,
-		Data: result,
-		Gin:  ctx,
-	})
-
-}
-
-// GetAllWithPagination implements IPaymentController.
-func (p *PaymentController) GetAllWithPagination(ctx *gin.Context) {
-	var param dto.PaymentRequestParam
-	err := ctx.ShouldBindJSON(&param)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-		return
-	}
-
-	validate := validator.New()
-	if err := validate.Struct(param); err != nil {
-		errMessage := http.StatusText(http.StatusUnprocessableEntity)
-		errResponse := errValidation.ErrValidationResponse(err)
-		response.HTTPResponse(response.ParamHTTPResp{
-			Err:     err,
-			Code:    http.StatusUnprocessableEntity,
-			Message: &errMessage,
-			Data:    errResponse,
-			Gin:     ctx,
-		})
-		return
-	}
-
-	result, err := p.service.GetPayment().GetAllWithPagination(ctx, &param)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-		return
-	}
-
-	response.HTTPResponse(response.ParamHTTPResp{
-		Code: http.StatusCreated,
-		Data: result,
-		Gin:  ctx,
-	})
-
-}
-
-// GetByUUID implements IPaymentController.
-func (p *PaymentController) GetByUUID(ctx *gin.Context) {
-	uuid := ctx.Param("uuid")
-	result, err := p.service.GetPayment().GetByUUID(ctx, uuid)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-		return
-	}
-
-	response.HTTPResponse(response.ParamHTTPResp{
-		Code: http.StatusOK,
-		Data: result,
-		Gin:  ctx,
-	})
-}
-
-// Webhook implements IPaymentController.
-func (p *PaymentController) Webhook(ctx *gin.Context) {
-	var request dto.Webhook
-	err := ctx.ShouldBindJSON(&request)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-	}
-
-	err = p.service.GetPayment().WebHook(ctx, &request)
-	if err != nil {
-		response.HTTPResponse(response.ParamHTTPResp{
-			Code: http.StatusBadRequest,
-			Err:  err,
-			Gin:  ctx,
-		})
-		return
-	}
-
-	response.HTTPResponse(response.ParamHTTPResp{
-		Code: http.StatusOK,
-		Gin:  ctx,
-	})
-}
-
 type IPaymentController interface {
-	GetAllWithPagination(ctx *gin.Context)
-	GetByUUID(ctx *gin.Context)
-	Create(ctx *gin.Context)
-	Webhook(ctx *gin.Context)
+	GetAllWithPagination(*gin.Context)
+	GetByUUID(*gin.Context)
+	Create(*gin.Context)
+	Webhook(*gin.Context)
 }
 
 func NewPaymentController(service service.IServiceRegistry) IPaymentController {
-	return &PaymentController{
-		service: service,
+	return &PaymentController{service: service}
+}
+
+func (p *PaymentController) GetAllWithPagination(c *gin.Context) {
+	var param dto.PaymentRequestParam
+	err := c.ShouldBindQuery(&param)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
 	}
+
+	validate := validator.New()
+	if err = validate.Struct(param); err != nil {
+		errMessage := http.StatusText(http.StatusUnprocessableEntity)
+		errorResponse := errValidation.ErrValidationResponse(err)
+		response.HTTPResponse(response.ParamHTTPResp{
+			Err:     err,
+			Code:    http.StatusUnprocessableEntity,
+			Message: &errMessage,
+			Data:    errorResponse,
+			Gin:     c,
+		})
+		return
+	}
+
+	result, err := p.service.GetPayment().GetAllWithPagination(c, &param)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	response.HTTPResponse(response.ParamHTTPResp{
+		Code: http.StatusOK,
+		Data: result,
+		Gin:  c,
+	})
+}
+
+func (p *PaymentController) GetByUUID(c *gin.Context) {
+	uuid := c.Param("uuid")
+	result, err := p.service.GetPayment().GetByUUID(c, uuid)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	response.HTTPResponse(response.ParamHTTPResp{
+		Code: http.StatusOK,
+		Data: result,
+		Gin:  c,
+	})
+}
+
+func (p *PaymentController) Create(c *gin.Context) {
+	var request dto.PaymentRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	validate := validator.New()
+	if err = validate.Struct(request); err != nil {
+		errMessage := http.StatusText(http.StatusUnprocessableEntity)
+		errorResponse := errValidation.ErrValidationResponse(err)
+		response.HTTPResponse(response.ParamHTTPResp{
+			Err:     err,
+			Code:    http.StatusUnprocessableEntity,
+			Message: &errMessage,
+			Data:    errorResponse,
+			Gin:     c,
+		})
+		return
+	}
+
+	result, err := p.service.GetPayment().Create(c, &request)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	response.HTTPResponse(response.ParamHTTPResp{
+		Code: http.StatusCreated,
+		Data: result,
+		Gin:  c,
+	})
+}
+
+func (p *PaymentController) Webhook(c *gin.Context) {
+	var request dto.Webhook
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		fmt.Println("error", err)
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	err = p.service.GetPayment().WebHook(c, &request)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+
+	response.HTTPResponse(response.ParamHTTPResp{
+		Code: http.StatusOK,
+		Gin:  c,
+	})
 }

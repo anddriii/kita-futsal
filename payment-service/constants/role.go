@@ -2,6 +2,6 @@ package constants
 
 // Role identifiers
 const (
-	Admin = "admin"
-	User  = "customer"
+	Admin    = "admin"
+	Customer = "customer"
 )

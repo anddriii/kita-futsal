@@ -49,3 +49,19 @@ func UploadImageLocal(images []multipart.FileHeader) ([]string, error) {
 
 	return photoNames, nil
 }
+
+func InvoiceLocal(invoiceData []byte, invoiceNumber string) (string, error) {
+	basePath := "./assets/invoices"
+	if err := os.MkdirAll(basePath, os.ModePerm); err != nil {
+		return "", fmt.Errorf("failed to create directory: %w", err)
+	}
+
+	invoiceNumberReplace := strings.ToLower(strings.ReplaceAll(invoiceNumber, "/", "-"))
+	filename := fmt.Sprintf("%s.pdf", invoiceNumberReplace)
+	fullPath := filepath.Join(basePath, filename)
+	if err := os.WriteFile(fullPath, invoiceData, 0644); err != nil {
+		return "", fmt.Errorf("failed to write invoice file: %w", err)
+	}
+	return filename, nil
+
+}

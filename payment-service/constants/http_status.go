@@ -2,6 +2,6 @@ package constants
 
 // General status messages
 const (
-	Succes = "succes"
-	Error  = "error"
+	Success = "success"
+	Error   = "error"
 )

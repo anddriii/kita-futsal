@@ -2,7 +2,6 @@ package clients
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,63 +14,59 @@ import (
 
 // UserClient adalah struct yang digunakan untuk melakukan komunikasi dengan User Service.
 type UserClient struct {
-	Client config.IClientConfig // Client konfigurasi yang digunakan untuk HTTP request.
+	client config.IClientConfig
 }
 
-// IUserClient adalah interface yang mendefinisikan metode untuk mendapatkan data user berdasarkan token.
 type IUserClient interface {
-
-	// GetUserByToken mengambil data user berdasarkan token dalam context.
 	GetUserByToken(context.Context) (*UserData, error)
 }
 
-// NewUserClient mengembalikan instance baru dari UserClient.
 func NewUserClient(client config.IClientConfig) IUserClient {
-	return &UserClient{Client: client}
+	return &UserClient{client: client}
 }
 
-// GetUserByToken mengambil data user berdasarkan token yang disertakan dalam context.
 func (u *UserClient) GetUserByToken(ctx context.Context) (*UserData, error) {
-	// Mengambil timestamp saat ini
 	unixTime := time.Now().Unix()
-
-	// Membuat API key menggunakan SHA-256
-	generateAPIKey := fmt.Sprintf("%s:%s:%d", config2.Config.AppName, u.Client.SignatureKey(), unixTime)
+	generateAPIKey := fmt.Sprintf("%s:%s:%d",
+		config2.Config.AppName,
+		u.client.SignatureKey(),
+		unixTime,
+	)
 	apiKey := util.GenerateSHA256(generateAPIKey)
 
-	// Mengambil token dari context
-	tokenValue := ctx.Value(constants.Token)
-	if tokenValue == nil {
-		return nil, errors.New("token is missing from context")
+	// --- BAGIAN YANG DIPERBAIKI ---
+	tokenVal := ctx.Value(constants.Token)
+	if tokenVal == nil {
+		// Jangan panic, return error biasa aja biar gampang di-trace
+		return nil, fmt.Errorf("token tidak ditemukan di context")
 	}
 
-	token, ok := tokenValue.(string)
+	token, ok := tokenVal.(string)
 	if !ok {
-		return nil, errors.New("token is not a valid string")
+		return nil, fmt.Errorf("format token di context bukan string")
 	}
+	// ------------------------------
 
 	bearerToken := fmt.Sprintf("Bearer %s", token)
 
-	// Menyiapkan request ke user service
-	var response UserRespone
-	request := u.Client.Client().Clone().
+	var response UserResponse
+	request := u.client.Client().Clone().
 		Set(constants.Authorization, bearerToken).
 		Set(constants.XServiceName, config2.Config.AppName).
 		Set(constants.XApiKey, apiKey).
 		Set(constants.XRequestAt, fmt.Sprintf("%d", unixTime)).
-		Get(fmt.Sprintf("%s/api/v1/auth/user", u.Client.BaseUrl()))
+		Get(fmt.Sprintf("%s/api/v1/auth/user", u.client.BaseUrl()))
 
-	// Mengirim request dan menangani response
-	resp, _, err := request.EndStruct(&response)
-	if len(err) > 0 {
-		return nil, err[0]
+	resp, _, errs := request.EndStruct(&response)
+	if len(errs) > 0 {
+		// Tambahin cetak error biar kelihatan di terminal
+		fmt.Println("🔴 ERROR HTTP CLIENT:", errs[0])
+		return nil, errs[0]
 	}
 
-	// Jika response tidak OK, kembalikan error
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("user response: %s", response.Message)
 	}
 
-	// Mengembalikan data user jika berhasil
 	return &response.Data, nil
 }

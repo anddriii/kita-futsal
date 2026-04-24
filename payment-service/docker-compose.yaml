@@ -11,3 +11,10 @@ services:
       - "8003:8003"
     env_file:
       - .env
+    volumes:
+      - ./assets:/app/assets
+networks:
+  host:
+    external: true
+  local-network:
+    driver: bridge

@@ -2,7 +2,7 @@ package clients
 
 import "github.com/google/uuid"
 
-type UserRespone struct {
+type UserResponse struct {
 	Code    int      `json:"code"`
 	Status  string   `json:"status"`
 	Message string   `json:"message"`

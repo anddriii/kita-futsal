@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"strings"
@@ -46,27 +47,21 @@ func (p *PaymentService) Create(ctx context.Context, req *dto.PaymentRequest) (*
 		midtrans   *clients.MidtransData
 	)
 
-	// Eksekusi dalam konteks transaksi DB
 	err = p.repository.GetTx().Transaction(func(tx *gorm.DB) error {
-		// Validasi bahwa waktu kedaluwarsa lebih dari waktu sekarang
 		if !req.ExpiredAt.After(time.Now()) {
 			return errPayment.ErrExpireArInvalid
 		}
 
-		// Membuat payment link dari Midtrans
 		midtrans, txErr = p.midtrans.CreatePaymentLink(req)
 		if txErr != nil {
-			fmt.Printf("error from midtrans create payment link %s", txErr)
 			return txErr
 		}
-		fmt.Printf("midtrans response: %+v\n", midtrans)
 
-		// Persiapan data request untuk disimpan ke database
 		paymentRequest := &dto.PaymentRequest{
 			OrderID:     req.OrderID,
 			Amount:      req.Amount,
-			ExpiredAt:   req.ExpiredAt,
 			Description: req.Description,
+			ExpiredAt:   req.ExpiredAt,
 			PaymentLink: midtrans.RedirectURL,
 		}
 
@@ -76,20 +71,16 @@ func (p *PaymentService) Create(ctx context.Context, req *dto.PaymentRequest) (*
 			return txErr
 		}
 
-		// Menyimpan histori pembayaran pertama kali
 		txErr = p.repository.GetPaymentHistory().Create(ctx, tx, &dto.PaymentHistoryRequest{
 			PaymentID: payment.ID,
 			Status:    payment.Status.GetStatusString(),
 		})
-
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
 
-	// Menyusun response untuk dikembalikan ke client
 	response = &dto.PaymentResponse{
 		UUID:        payment.UUID,
 		OrderID:     payment.OrderID,
@@ -98,7 +89,6 @@ func (p *PaymentService) Create(ctx context.Context, req *dto.PaymentRequest) (*
 		PaymentLink: payment.PaymentLink,
 		Description: payment.Description,
 	}
-
 	return response, nil
 }
 
@@ -106,14 +96,14 @@ func (p *PaymentService) Create(ctx context.Context, req *dto.PaymentRequest) (*
 // Fungsi ini mengambil semua data pembayaran dari database dengan fitur pagination.
 // Data yang diambil kemudian dikonversi ke bentuk DTO PaymentResponse.
 // Hasilnya dibungkus dalam objek PaginationResult agar mendukung pagination di sisi client.
-func (p *PaymentService) GetAllWithPagination(ctx context.Context, req *dto.PaymentRequestParam) (*util.PaginationResult, error) {
-	// Ambil data pembayaran dan total count dari repository
-	payments, total, err := p.repository.GetPayment().FindAllWithPagination(ctx, req)
+func (p *PaymentService) GetAllWithPagination(
+	ctx context.Context,
+	param *dto.PaymentRequestParam,
+) (*util.PaginationResult, error) {
+	payments, total, err := p.repository.GetPayment().FindAllWithPagination(ctx, param)
 	if err != nil {
 		return nil, err
 	}
-
-	// Ubah data model menjadi slice DTO PaymentResponse
 	paymentResults := make([]dto.PaymentResponse, 0, len(payments))
 	for _, payment := range payments {
 		paymentResults = append(paymentResults, dto.PaymentResponse{
@@ -135,8 +125,8 @@ func (p *PaymentService) GetAllWithPagination(ctx context.Context, req *dto.Paym
 
 	// Buat parameter pagination untuk hasil akhir
 	paginationParam := util.PaginationParam{
-		Page:  req.Page,
-		Limit: req.Limit,
+		Page:  param.Page,
+		Limit: param.Limit,
 		Count: total,
 		Data:  paymentResults,
 	}
@@ -200,7 +190,7 @@ func (p *PaymentService) convertToIndonesianMonth(englishMonth string) string {
 // Fungsi untuk menghasilkan PDF dari template HTML
 func (p *PaymentService) generatePDF(req *dto.InvoiceRequest) ([]byte, error) {
 	// Path ke template HTML invoice
-	htmlTemplatePath := "templates/invoice.html"
+	htmlTemplatePath := "template/invoice.html"
 
 	// Membaca file template HTML
 	htmlTemplate, err := os.ReadFile(htmlTemplatePath)
@@ -326,7 +316,7 @@ func (p *PaymentService) WebHook(ctx context.Context, req *dto.Webhook) error {
 	err = p.repository.GetTx().Transaction(func(tx *gorm.DB) error {
 		// Mencari data pembayaran berdasarkan order ID
 		_, txErr = p.repository.GetPayment().FindByOrderID(ctx, req.OrderID.String())
-		if err != nil {
+		if txErr != nil {
 			return txErr
 		}
 
@@ -338,16 +328,20 @@ func (p *PaymentService) WebHook(ctx context.Context, req *dto.Webhook) error {
 
 		// Konversi status string ke integer
 		status := req.TransactionStatus.GetStatusInt()
-		vaNumber := req.VANumbers[0].VaNumber // Nomor VA
-		bank := req.VANumbers[0].Bank         // Bank
+		var vaNumber, bank *string
+		if len(req.VANumbers) > 0 {
+			// Kalau array ada isinya (Bayar pake VA)
+			vaNumber = &req.VANumbers[0].VaNumber
+			bank = &req.VANumbers[0].Bank
+		}
 
 		// Update data pembayaran
 		_, txErr = p.repository.GetPayment().Update(ctx, tx, req.OrderID.String(), &dto.UpdatePaymentRequest{
 			TransactionID: &req.TransactionID,
 			Status:        &status,
 			PaidAt:        paidAt,
-			VANumber:      &vaNumber,
-			Bank:          &bank,
+			VANumber:      vaNumber,
+			Bank:          bank,
 			Acquirer:      req.Acquirer,
 		})
 
@@ -404,14 +398,26 @@ func (p *PaymentService) WebHook(ctx context.Context, req *dto.Webhook) error {
 			// Generate PDF invoice
 			pdf, txErr = p.generatePDF(invoiceRequest)
 			if txErr != nil {
+				log.Printf("Failed to generate PDF: %v", txErr)
 				return txErr
 			}
 
-			// Upload invoice ke GCS
-			invoiceLink, txErr = p.uploadToGCS(ctx, invoiceNumber, pdf)
+			//Upload invoice ke lokal
+			invoiceLink, txErr = util.InvoiceLocal(pdf, invoiceNumber)
 			if txErr != nil {
+				log.Printf("Failed to upload invoice locally: %v", txErr)
 				return txErr
 			}
+
+			invoiceLink = constants.BuildInvoiceURL(invoiceLink)
+
+			fmt.Println("Invoice Link: ", invoiceLink)
+
+			// // Upload invoice ke GCS
+			// invoiceLink, txErr = p.uploadToGCS(ctx, invoiceNumber, pdf)
+			// if txErr != nil {
+			// 	return txErr
+			// }
 
 			// Update link invoice di database
 			_, txErr = p.repository.GetPayment().Update(ctx, tx, req.OrderID.String(), &dto.UpdatePaymentRequest{

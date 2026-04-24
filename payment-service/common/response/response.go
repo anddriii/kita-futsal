@@ -30,7 +30,7 @@ func HTTPResponse(param ParamHTTPResp) {
 	if param.Err == nil {
 		// output JSON success, no errors
 		param.Gin.JSON(param.Code, Response{
-			Status:  constants.Succes,
+			Status:  constants.Success,
 			Message: http.StatusText(http.StatusOK),
 			Data:    param.Data,
 			Token:   param.Token,

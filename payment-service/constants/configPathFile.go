@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	FieldImagePathPrefix = "/assets/images/field-images/"
+	FieldImagePathPrefix = "/api/v1/invoices/"
 )
 
-func BuildFullImagePath(fileName string) string {
+func BuildInvoiceURL(fileName string) string {
 	baseURL := os.Getenv("BASE_URL") // ex: http://localhost:8080
 	if baseURL == "" {
-		baseURL = "http://localhost:8080" // fallback
+		baseURL = "http://localhost:8003" // fallback
 	}
 	return fmt.Sprintf("%s%s%s", baseURL, FieldImagePathPrefix, fileName)
 }

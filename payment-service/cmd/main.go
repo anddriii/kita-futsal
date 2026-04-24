@@ -98,7 +98,7 @@ var command = cobra.Command{
 		// Endpoint dasar untuk pengecekan apakah service berjalan
 		router.GET("/", func(ctx *gin.Context) {
 			ctx.JSON(http.StatusOK, response.Response{
-				Status:  constants.Succes,
+				Status:  constants.Success,
 				Message: "Welcome to payment service",
 			})
 		})

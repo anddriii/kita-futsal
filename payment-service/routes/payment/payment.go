@@ -31,18 +31,22 @@ func NewPaymentRoute(
 }
 
 func (p *PaymentRoute) Run() {
+	// Parameter 1: Prefix URL yang dicari browser (sesuai constant)
+	// Parameter 2: Folder fisik tempat nyimpen file(sesuai util.go)
+	p.group.Static("/invoices", "./assets/invoices")
+
 	group := p.group.Group("/payment")
 	group.POST("/webhook", p.controller.GetPayment().Webhook)
 	group.Use(middlewares.Authenticate())
 	group.GET("", middlewares.CheckRole([]string{
 		constants.Admin,
-		constants.User,
+		constants.Customer,
 	}, p.client), p.controller.GetPayment().GetAllWithPagination)
 	group.GET("/:uuid", middlewares.CheckRole([]string{
 		constants.Admin,
-		constants.User,
+		constants.Customer,
 	}, p.client), p.controller.GetPayment().GetByUUID)
 	group.POST("", middlewares.CheckRole([]string{
-		constants.Admin,
+		constants.Customer,
 	}, p.client), p.controller.GetPayment().Create)
 }

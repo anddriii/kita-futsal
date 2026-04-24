@@ -132,7 +132,7 @@ func (u *UserService) Register(ctx context.Context, req *dto.RegisterRequest) (*
 		Password:    string(hashedPW),
 		Email:       req.Email,
 		PhoneNumber: req.PhoneNumber,
-		RoleId:      constants.User,
+		RoleId:      constants.Customer,
 	}
 
 	user, err := u.repository.GetUser().Register(ctx, reqUser)

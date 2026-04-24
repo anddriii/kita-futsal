@@ -33,7 +33,7 @@ RUN  apk update && apk add --no-cache \
 
 WORKDIR /app
 
-COPY .env.example .env
+COPY .env .env
 COPY . .
 
 RUN go install github.com/buu700/gin@latest
