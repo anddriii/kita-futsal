@@ -8,7 +8,7 @@ import (
 )
 
 type OrderRequest struct {
-	FieldScheduleIDs []string `json:"fieldScheduleIDs" validate:"required,min=1,dive,required"`
+	FieldScheduleIDs []string `json:"fieldScheduleIDs" validate:"required"`
 }
 
 type OrderRequestParam struct {
@@ -24,7 +24,7 @@ type OrderResponse struct {
 	UserName    string                      `json:"userName"`
 	Amount      float64                     `json:"amount"`
 	Status      constants.OrderStatusString `json:"status"`
-	PaymentLink string                      `json:"paymentLink"`
+	PaymentLink string                      `json:"paymentLink,omitempty"`
 	OrderDate   time.Time                   `json:"orderDate"`
 	CreatedAt   time.Time                   `json:"createdAt"`
 	UpdatedAt   time.Time                   `json:"updatedAt"`
