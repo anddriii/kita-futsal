@@ -316,6 +316,6 @@ func (o *OrderService) HandlePayment(ctx context.Context, request *dto.PaymentDa
 	return nil
 }
 
-func NewOrderService(repository repositories.IRepositoryRegistry) IOrdderService {
-	return &OrderService{repository: repository}
+func NewOrderService(repository repositories.IRepositoryRegistry, client clients.IClientRegistry) IOrdderService {
+	return &OrderService{repository: repository, client: client}
 }
