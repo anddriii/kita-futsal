@@ -1,0 +1,31 @@
+package kafka
+
+import (
+	"github.com/anddriii/kita-futsal/order-service/config"
+	"github.com/anddriii/kita-futsal/order-service/controllers/kafka"
+	kafka2 "github.com/anddriii/kita-futsal/order-service/controllers/kafka/payment"
+	"golang.org/x/exp/slices"
+)
+
+type Kafka struct {
+	consumer *ConsumerGroup
+	kafka    kafka.IKafkaRegistry
+}
+
+type IKafka interface {
+	Register()
+}
+
+func NewKafkaConsumer(consumer *ConsumerGroup, kafka kafka.IKafkaRegistry) IKafka {
+	return &Kafka{consumer: consumer, kafka: kafka}
+}
+
+func (k *Kafka) Register() {
+	k.paymentHandler()
+}
+
+func (k *Kafka) paymentHandler() {
+	if slices.Contains(config.Config.Kafka.Topics, kafka2.PaymentTopic) {
+		k.consumer.RegisterHandler(kafka2.PaymentTopic, k.kafka.GetPayment().HandlePayment)
+	}
+}
