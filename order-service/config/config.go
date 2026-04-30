@@ -67,14 +67,14 @@ type Payment struct {
 }
 
 type Kafka struct {
-	Brokers              []string `json:"brokers"`
-	TimeoutInMS          int      `json:"timeoutInMS"`
-	MaxRetry             int      `json:"maxRetry"`
-	Topics               []string `json:"topics"`
-	GroupID              string   `json:"groupID"`
-	MaxWaitTsingTimeInMs int      `json:"maxProcessingTimeInMs"`
-	BackOffTiimeInMs     int      `json:"maxWaitTimeInMs"`
-	MaxProcesmeInMs      int      `json:"backOffTimeInMs"`
+	Brokers               []string `json:"brokers"`
+	TimeoutInMS           int      `json:"timeoutInMS"`
+	MaxRetry              int      `json:"maxRetry"`
+	Topics                []string `json:"topics"`
+	GroupID               string   `json:"groupID"`
+	MaxWaitTimeInMs       int      `json:"maxWaitTimeInMs"`
+	MaxProcessingTimeInMs int      `json:"maxProcessingTimeInMs"`
+	BackOffTimeInMs       int      `json:"backOffTimeInMs"`
 }
 
 func Init() {
