@@ -2,6 +2,6 @@ package constants
 
 // Auth constants represent authentication-related keys
 const (
-	UserLogin = "user"
+	UserLogin = "user_login"
 	Token     = "token"
 )

@@ -39,7 +39,7 @@ func (o *OrderRoute) Run() {
 	}, o.client), o.GetOrder().GetByUUID)
 	group.GET("/user", middlewares.CheckRole([]string{
 		constants.Customer,
-	}, o.client), o.GetOrder().GetOrdersByUserID)
+	}, o.client), o.GetOrder().GetOrderByUserID)
 	group.POST("", middlewares.CheckRole([]string{
 		constants.Customer,
 	}, o.client), o.GetOrder().Create)

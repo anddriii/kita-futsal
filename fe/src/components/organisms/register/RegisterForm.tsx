@@ -67,8 +67,11 @@ export default function RegisterForm() {
   }
 
   const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
+  e.preventDefault();
+  setIsLoading(true);
+  setErrors({}); // Biasakan reset error state tiap kali submit baru
+
+  try {
     await axios.post(`${apiConfig.user.baseUrl}/api/v1/auth/register`, {
       name,
       email,
@@ -76,24 +79,39 @@ export default function RegisterForm() {
       username,
       password,
       confirmPassword
-    }).then(() => {
-      setIsLoading(false);
-      toast.success('Register berhasil');
-      setTimeout(() => {
-        router.push('/login');
-      }, 2000)
-    }).catch((error: any) => {
-      setIsLoading(false);
-      toast.error(error.response.data.message);
+    });
+
+    setIsLoading(false);
+    toast.success('Register berhasil');
+    setTimeout(() => {
+      router.push('/login');
+    }, 2000);
+
+  } catch (error: any) {
+    setIsLoading(false);
+
+    // SAFETY CHECK: Pastikan error.response beneran ada isinya
+    if (error.response && error.response.data) {
+      const responseData = error.response.data;
+      
+      // Munculin toast message dari API Golang lo
+      toast.error(responseData.message || 'Terjadi kesalahan pada validasi');
+
+      // Mapping validasi error ke form
       const newErrors: any = {};
-      if (error.response.data.data != undefined) {
-        error.response.data.data.forEach((err: any) => {
+      if (responseData.data && Array.isArray(responseData.data)) {
+        responseData.data.forEach((err: any) => {
           newErrors[err.field] = err.message;
         });
-        setErrors(newErrors)
+        setErrors(newErrors);
       }
-    });
+    } else {
+      // Masuk ke sini kalau Server Down, Network Error, atau CORS Issue
+      toast.error('Gagal terhubung ke server. Cek koneksi backend lo!');
+      // console.error("AXIOS NETWORK ERROR:", error.message);
+    }
   }
+}
 
   return (
     <>

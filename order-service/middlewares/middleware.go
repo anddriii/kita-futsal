@@ -41,7 +41,7 @@ func RateLimiter(lmt *limiter.Limiter) gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusTooManyRequests, response.Response{
 				Status:  constants.Error,
-				Message: errConstant.ErrTooManyRequests.Error(),
+				Message: errConstant.ErrTooManyRequest.Error(),
 			})
 			c.Abort()
 		}

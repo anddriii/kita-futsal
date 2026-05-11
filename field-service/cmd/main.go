@@ -98,10 +98,17 @@ var command = cobra.Command{
 
 		// Middleware untuk menangani CORS (Cross-Origin Resource Sharing)
 		router.Use(func(ctx *gin.Context) {
-			ctx.Writer.Header().Set("Acces-Control-Allow-Origin", "*")
-			ctx.Writer.Header().Set("Acces-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			ctx.Writer.Header().Set("Acces-Control-Allow-Headers", "Content-Type, Authorization, x-service-name, x-api-key, x-request-at")
-			ctx.Next()
+			// FIX TYPO: 'Access', bukan 'Acces'
+			ctx.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+			ctx.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+			ctx.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, x-service-name, x-api-key, x-request-at")
+
+			// TANGANI PREFLIGHT REQUEST
+			// Kalau method-nya OPTIONS, kasih response sukses 204 dan STOP di sini.
+			if ctx.Request.Method == "OPTIONS" {
+				ctx.AbortWithStatus(204)
+				return
+			}
 		})
 
 		// Middleware untuk membatasi jumlah permintaan (Rate Limiting)

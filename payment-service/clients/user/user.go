@@ -34,7 +34,6 @@ func (u *UserClient) GetUserByToken(ctx context.Context) (*UserData, error) {
 	)
 	apiKey := util.GenerateSHA256(generateAPIKey)
 
-	// --- BAGIAN YANG DIPERBAIKI ---
 	tokenVal := ctx.Value(constants.Token)
 	if tokenVal == nil {
 		// Jangan panic, return error biasa aja biar gampang di-trace
@@ -45,7 +44,6 @@ func (u *UserClient) GetUserByToken(ctx context.Context) (*UserData, error) {
 	if !ok {
 		return nil, fmt.Errorf("format token di context bukan string")
 	}
-	// ------------------------------
 
 	bearerToken := fmt.Sprintf("Bearer %s", token)
 
@@ -60,7 +58,7 @@ func (u *UserClient) GetUserByToken(ctx context.Context) (*UserData, error) {
 	resp, _, errs := request.EndStruct(&response)
 	if len(errs) > 0 {
 		// Tambahin cetak error biar kelihatan di terminal
-		fmt.Println("🔴 ERROR HTTP CLIENT:", errs[0])
+		fmt.Println("ERROR HTTP CLIENT:", errs[0])
 		return nil, errs[0]
 	}
 

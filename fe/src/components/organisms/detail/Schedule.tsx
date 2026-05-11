@@ -6,6 +6,7 @@ import {Hash} from "node:crypto";
 import crypto from "crypto";
 import axios from "axios";
 import DatePicker from "react-datepicker";
+// @ts-ignore
 import "react-datepicker/dist/react-datepicker.css";
 import {toast} from "react-toastify";
 import {AuthContext} from "@/context/AuthProvider";
@@ -115,7 +116,8 @@ export default function Schedule({params}: { params: { uuid: any } }) {
         confirmButtonText: "Yes"
       }).then(async (result) => {
         if (result.isConfirmed) {
-          await axios.post(`${apiConfig.order.baseUrl}/api/v1/order`, {
+          console.log("ISI TOKEN:", user.token);
+          await axios.post(`${apiConfig.order.baseUrl}/api/v1/orders`, {
             fieldScheduleIDs: selectedSchedule,
           }, {
             headers: {
@@ -131,9 +133,26 @@ export default function Schedule({params}: { params: { uuid: any } }) {
             }, 1000)
           }).catch((error: any) => {
             setIsLoading(false);
-            const message = error.response.data[0].message;
-            const replaceMessage = message.replace("FieldScheduleIDs", 'Field Schedule ID');
-            toast.error(replaceMessage);
+
+            // SAFETY CHECK: Pastikan error.response ada
+            if (error.response && error.response.data) {
+              let rawMessage = "Terjadi kesalahan pada sistem";
+
+              // Cek apakah response.data bentuknya array (biasanya dari validasi Golang lo)
+              if (Array.isArray(error.response.data) && error.response.data.length > 0) {
+                rawMessage = error.response.data[0].message;
+              } 
+              // Cek apakah response.data.message bentuknya string biasa (error 400/404/500)
+              else if (error.response.data.message) {
+                rawMessage = error.response.data.message;
+              }
+
+              const replaceMessage = rawMessage.replace("FieldScheduleIDs", 'Field Schedule ID');
+              toast.error(replaceMessage);
+            } else {
+              // Kalau error CORS atau Server Mati
+              toast.error("Gagal terhubung ke Order Service.");
+            }
           });
         } else {
           setIsLoading(false);

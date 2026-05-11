@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Home Page | Kita Futsal",
-  icons: "/images/bwa-icon.svg",
+  icons: "/images/logo-kita-futsal.svg",
 };
 
 export default function RootLayout({

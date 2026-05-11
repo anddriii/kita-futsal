@@ -41,11 +41,11 @@ func (u *UserClient) GetUserByToken(ctx context.Context) (*UserData, error) {
 
 	var response UserResponse
 	request := gorequest.New().
-		Set(constants.Authorization, bearerToken).
+		Get(fmt.Sprintf("%s/api/v1/auth/user", u.client.BaseURL())). // WAJIB TULIS GET DULUAN DI ATAS
+		Set(constants.Authorization, bearerToken).                   // BARU SET HEADER DI BAWAHNYA
 		Set(constants.XServiceName, config2.Config.AppName).
 		Set(constants.XApiKey, apiKey).
-		Set(constants.XRequestAt, fmt.Sprintf("%d", unixTime)).
-		Get(fmt.Sprintf("%s/api/v1/auth/user", u.client.BaseURL()))
+		Set(constants.XRequestAt, fmt.Sprintf("%d", unixTime))
 
 	resp, _, errs := request.EndStruct(&response)
 	if len(errs) > 0 {
@@ -72,13 +72,15 @@ func (u *UserClient) GetUserByUUID(ctx context.Context, uuid uuid.UUID) (*UserDa
 
 	var response UserResponse
 	request := gorequest.New().
-		Set(constants.Authorization, bearerToken).
+		Get(fmt.Sprintf("%s/api/v1/auth/user", u.client.BaseURL())). // WAJIB TULIS GET DULUAN DI ATAS
+		Set(constants.Authorization, bearerToken).                   // BARU SET HEADER DI BAWAHNYA
 		Set(constants.XServiceName, config2.Config.AppName).
 		Set(constants.XApiKey, apiKey).
-		Set(constants.XRequestAt, fmt.Sprintf("%d", unixTime)).
-		Get(fmt.Sprintf("%s/api/v1/auth/%s", u.client.BaseURL(), uuid))
+		Set(constants.XRequestAt, fmt.Sprintf("%d", unixTime))
 
 	resp, _, errs := request.EndStruct(&response)
+	fmt.Println("DEBUG: Requesting user data by UUID:", uuid)
+	fmt.Println("DEBUG: Response user:", resp)
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
@@ -86,6 +88,8 @@ func (u *UserClient) GetUserByUUID(ctx context.Context, uuid uuid.UUID) (*UserDa
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("user response: %s", response.Message)
 	}
+
+	fmt.Println("DEBUG: Received user data:", response.Data)
 
 	return &response.Data, nil
 }

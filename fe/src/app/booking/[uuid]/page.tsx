@@ -1,12 +1,13 @@
 import Header from "@/components/organisms/header/Header";
 import 'owl.carousel/dist/assets/owl.carousel.css';
-import '../../../styles/owl.theme.default.min.css';
+import 'owl.carousel/dist/assets/owl.theme.default.min.css';
 import Footer from "@/components/organisms/footer/Footer";
 import Detail from "@/components/organisms/detail/Detail";
 import Schedule from "@/components/organisms/detail/Schedule";
 
-export default function Booking({ params }: any) {
-  const { uuid } = params;
+export default async function Booking({ params }: any) {
+  const resolvedParams = await params;
+   const { uuid } = resolvedParams;
 
   return (
     <>
