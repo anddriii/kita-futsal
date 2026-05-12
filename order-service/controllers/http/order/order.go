@@ -1,12 +1,14 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	error2 "github.com/anddriii/kita-futsal/order-service/common/error"
 	"github.com/anddriii/kita-futsal/order-service/common/response"
 	"github.com/anddriii/kita-futsal/order-service/domain/dto"
 	"github.com/anddriii/kita-futsal/order-service/services"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )
@@ -30,7 +32,7 @@ func (o *OrderController) GetAllWithPagination(c *gin.Context) {
 	var params dto.OrderRequestParam
 	err := c.ShouldBindQuery(&params)
 	if err != nil {
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  c,
@@ -42,7 +44,7 @@ func (o *OrderController) GetAllWithPagination(c *gin.Context) {
 	if err = validate.Struct(params); err != nil {
 		errMessage := http.StatusText(http.StatusUnprocessableEntity)
 		errorResponse := error2.ErrValidationResponse(err)
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Err:     err,
 			Code:    http.StatusUnprocessableEntity,
 			Message: &errMessage,
@@ -54,7 +56,7 @@ func (o *OrderController) GetAllWithPagination(c *gin.Context) {
 
 	result, err := o.service.GetOrder().GetAllWithPagination(c.Request.Context(), &params)
 	if err != nil {
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  c,
@@ -62,7 +64,7 @@ func (o *OrderController) GetAllWithPagination(c *gin.Context) {
 		return
 	}
 
-	response.HttpResponse(response.ParamHttpResponse{
+	response.HttpResponse(response.ParamHTTPResp{
 		Code: http.StatusOK,
 		Data: result,
 		Gin:  c,
@@ -73,7 +75,7 @@ func (o *OrderController) GetByUUID(c *gin.Context) {
 	uuid := c.Param("uuid")
 	result, err := o.service.GetOrder().GetByUUID(c.Request.Context(), uuid)
 	if err != nil {
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  c,
@@ -81,7 +83,7 @@ func (o *OrderController) GetByUUID(c *gin.Context) {
 		return
 	}
 
-	response.HttpResponse(response.ParamHttpResponse{
+	response.HttpResponse(response.ParamHTTPResp{
 		Code: http.StatusOK,
 		Data: result,
 		Gin:  c,
@@ -91,7 +93,7 @@ func (o *OrderController) GetByUUID(c *gin.Context) {
 func (o *OrderController) GetOrderByUserID(c *gin.Context) {
 	result, err := o.service.GetOrder().GetOrderByUserID(c.Request.Context())
 	if err != nil {
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  c,
@@ -99,7 +101,7 @@ func (o *OrderController) GetOrderByUserID(c *gin.Context) {
 		return
 	}
 
-	response.HttpResponse(response.ParamHttpResponse{
+	response.HttpResponse(response.ParamHTTPResp{
 		Code: http.StatusOK,
 		Data: result,
 		Gin:  c,
@@ -114,7 +116,7 @@ func (o *OrderController) Create(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  c,
@@ -126,7 +128,7 @@ func (o *OrderController) Create(c *gin.Context) {
 	if err = validate.Struct(request); err != nil {
 		errMessage := http.StatusText(http.StatusUnprocessableEntity)
 		errorResponse := error2.ErrValidationResponse(err)
-		response.HttpResponse(response.ParamHttpResponse{
+		response.HttpResponse(response.ParamHTTPResp{
 			Err:     err,
 			Code:    http.StatusUnprocessableEntity,
 			Message: &errMessage,
@@ -138,7 +140,8 @@ func (o *OrderController) Create(c *gin.Context) {
 
 	result, err := o.service.GetOrder().Create(ctx, &request)
 	if err != nil {
-		response.HttpResponse(response.ParamHttpResponse{
+		fmt.Println("DEBUG: Error Create Order, ", err)
+		response.HttpResponse(response.ParamHTTPResp{
 			Code: http.StatusBadRequest,
 			Err:  err,
 			Gin:  c,
@@ -146,7 +149,7 @@ func (o *OrderController) Create(c *gin.Context) {
 		return
 	}
 
-	response.HttpResponse(response.ParamHttpResponse{
+	response.HttpResponse(response.ParamHTTPResp{
 		Code: http.StatusCreated,
 		Data: result,
 		Gin:  c,

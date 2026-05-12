@@ -10,21 +10,21 @@ import (
 
 type Response struct {
 	Status  string      `json:"status"`
-	Message string      `json:"message"`
+	Message any         `json:"message"`
 	Data    interface{} `json:"data"`
-	Token   string      `json:"token"`
+	Token   *string     `json:"token,omitempty"`
 }
 
-type ParamHttpResponse struct {
+type ParamHTTPResp struct {
 	Code    int
 	Err     error
 	Message *string
 	Gin     *gin.Context
 	Data    interface{}
-	Token   string
+	Token   *string
 }
 
-func HttpResponse(param ParamHttpResponse) {
+func HttpResponse(param ParamHTTPResp) {
 	if param.Err == nil {
 		param.Gin.JSON(param.Code, Response{
 			Status:  constants.Success,

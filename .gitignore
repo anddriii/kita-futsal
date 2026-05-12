@@ -8,6 +8,7 @@ tmp
 
 config.json
 config_gcs.json
+configdocker.json
 setConfig.txt
 user-service/Makefile
 assets

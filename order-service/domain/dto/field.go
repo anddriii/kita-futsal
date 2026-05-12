@@ -1,5 +1,5 @@
 package dto
 
 type UpdateFieldScheduleStatusRequest struct {
-	FieldSCheduleIDs []string `json:"fieldScheduleIDs"`
+	FieldScheduleIDs []string `json:"fieldScheduleIDs"`
 }

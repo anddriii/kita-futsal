@@ -34,5 +34,5 @@ func (r *Registry) Serve() {
 }
 
 func (r *Registry) orderRoute() routes.IOrderRoute {
-	return routes.NewOrderRoute(r.group, r.client, r.controller)
+	return routes.NewOrderRoute(r.group, r.controller, r.client)
 }

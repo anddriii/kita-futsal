@@ -3,10 +3,9 @@ package error
 import (
 	"errors"
 	"fmt"
-	"strings"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
+	"strings"
 )
 
 type ValidationResponse struct {
@@ -37,18 +36,18 @@ func ErrValidationResponse(err error) (validationResponse []ValidationResponse) 
 					Message: fmt.Sprintf("%s must be an oneof [%s]", err.Field(), err.Param()),
 				})
 			default:
-				ErrValidator, ok := ErrValidator[err.Tag()]
+				errValidator, ok := ErrValidator[err.Tag()]
 				if ok {
-					count := strings.Count(ErrValidator, "%s")
+					count := strings.Count(errValidator, "%s")
 					if count == 1 {
 						validationResponse = append(validationResponse, ValidationResponse{
 							Field:   err.Field(),
-							Message: fmt.Sprintf(ErrValidator, err.Field()),
+							Message: fmt.Sprintf(errValidator, err.Field()),
 						})
 					} else {
 						validationResponse = append(validationResponse, ValidationResponse{
 							Field:   err.Field(),
-							Message: fmt.Sprintf(ErrValidator, err.Field(), err.Param()),
+							Message: fmt.Sprintf(errValidator, err.Field(), err.Param()),
 						})
 					}
 				} else {
@@ -60,6 +59,7 @@ func ErrValidationResponse(err error) (validationResponse []ValidationResponse) 
 			}
 		}
 	}
+
 	return validationResponse
 }
 

@@ -270,6 +270,11 @@ func (p *PaymentService) produceToKafka(req *dto.Webhook, payment *models.Paymen
 	}
 
 	// Body Kafka message
+	expiredAt := time.Time{}
+	if payment.ExpiredAt != nil {
+		expiredAt = *payment.ExpiredAt
+	}
+
 	body := dto.KafkaBody{
 		Type: "JSON",
 		Data: &dto.KafkaData{
@@ -277,7 +282,7 @@ func (p *PaymentService) produceToKafka(req *dto.Webhook, payment *models.Paymen
 			PaymentID: payment.UUID,                   // ID pembayaran
 			Status:    req.TransactionStatus.String(), // Status transaksi
 			PaidAt:    paidAt,                         // Waktu pembayaran
-			ExpiredAt: *payment.ExpiredAt,             // Waktu kadaluarsa
+			ExpiredAt: expiredAt,                      // Waktu kadaluarsa
 		},
 	}
 
@@ -374,20 +379,35 @@ func (p *PaymentService) WebHook(ctx context.Context, req *dto.Webhook) error {
 			// Format jumlah pembayaran ke format Rupiah
 			total := util.RupiahFormat(&paymentAfterUpdate.Amount)
 
+			bankName := ""
+			if paymentAfterUpdate.Bank != nil {
+				bankName = strings.ToUpper(*paymentAfterUpdate.Bank)
+			}
+
+			vaNumber := ""
+			if paymentAfterUpdate.VANumber != nil {
+				vaNumber = *paymentAfterUpdate.VANumber
+			}
+
+			description := ""
+			if paymentAfterUpdate.Description != nil {
+				description = *paymentAfterUpdate.Description
+			}
+
 			// Membuat request invoice
 			invoiceRequest := &dto.InvoiceRequest{
 				InvoiceNumber: invoiceNumber,
 				Data: dto.InvoiceData{
 					PaymentDetail: dto.InvoicePaymentDetail{
 						PaymentMethod: req.PaymentType,
-						BankName:      strings.ToUpper(*paymentAfterUpdate.Bank),
-						VANumber:      *paymentAfterUpdate.VANumber,
+						BankName:      bankName,
+						VANumber:      vaNumber,
 						Date:          fmt.Sprintf("%s %s %s", paidDay, paidMonth, paidYear),
 						IsPaid:        true,
 					},
 					Items: []dto.InvoiceItem{
 						{
-							Description: *paymentAfterUpdate.Description,
+							Description: description,
 							Price:       total,
 						},
 					},

@@ -17,7 +17,7 @@ type KafkaBody[T any] struct {
 }
 
 type KafkaMessage[T any] struct {
-	Event KafkaEvent    `json:"event"`
-	Meta  KafkaMetaData `json:"metadata"`
-	Body  KafkaBody[T]  `json:"body"`
+	Event    KafkaEvent    `json:"event"`
+	Metadata KafkaMetaData `json:"metadata"`
+	Body     KafkaBody[T]  `json:"body"`
 }

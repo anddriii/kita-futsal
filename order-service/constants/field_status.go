@@ -4,7 +4,7 @@ type FieldStatusString string
 
 const (
 	AvailableStatus FieldStatusString = "pending"
-	BookesStatus    FieldStatusString = "settlement"
+	BookedStatus    FieldStatusString = "settlement"
 )
 
 func (p FieldStatusString) String() string {

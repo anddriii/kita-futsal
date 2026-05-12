@@ -18,7 +18,11 @@ type IOrderRoute interface {
 	Run()
 }
 
-func NewOrderRoute(group *gin.RouterGroup, client clients.IClientRegistry, controller controllers.IControllerRegistry) IOrderRoute {
+func NewOrderRoute(
+	group *gin.RouterGroup,
+	controller controllers.IControllerRegistry,
+	client clients.IClientRegistry,
+) IOrderRoute {
 	return &OrderRoute{
 		IControllerRegistry: controller,
 		client:              client,
@@ -27,7 +31,7 @@ func NewOrderRoute(group *gin.RouterGroup, client clients.IClientRegistry, contr
 }
 
 func (o *OrderRoute) Run() {
-	group := o.group.Group("/orders")
+	group := o.group.Group("/order")
 	group.Use(middlewares.Authenticate())
 	group.GET("", middlewares.CheckRole([]string{
 		constants.Admin,

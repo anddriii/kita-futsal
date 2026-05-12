@@ -117,7 +117,7 @@ export default function Schedule({params}: { params: { uuid: any } }) {
       }).then(async (result) => {
         if (result.isConfirmed) {
           console.log("ISI TOKEN:", user.token);
-          await axios.post(`${apiConfig.order.baseUrl}/api/v1/orders`, {
+          await axios.post(`${apiConfig.order.baseUrl}/api/v1/order`, {
             fieldScheduleIDs: selectedSchedule,
           }, {
             headers: {

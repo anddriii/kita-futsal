@@ -13,6 +13,7 @@ import (
 	"github.com/anddriii/kita-futsal/order-service/config"
 	"github.com/anddriii/kita-futsal/order-service/constants"
 	errConstant "github.com/anddriii/kita-futsal/order-service/constants/error"
+
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth/limiter"
 	"github.com/gin-gonic/gin"
@@ -41,7 +42,7 @@ func RateLimiter(lmt *limiter.Limiter) gin.HandlerFunc {
 		if err != nil {
 			c.JSON(http.StatusTooManyRequests, response.Response{
 				Status:  constants.Error,
-				Message: errConstant.ErrTooManyRequest.Error(),
+				Message: errConstant.ErrTooManyRequests.Error(),
 			})
 			c.Abort()
 		}

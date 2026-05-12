@@ -1,9 +1,8 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/google/uuid"
+	"time"
 )
 
 type PaymentRequest struct {

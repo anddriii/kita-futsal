@@ -5,9 +5,9 @@ import (
 
 	errWrap "github.com/anddriii/kita-futsal/order-service/common/error"
 	errConstant "github.com/anddriii/kita-futsal/order-service/constants/error"
+	"gorm.io/gorm"
 
 	"github.com/anddriii/kita-futsal/order-service/domain/models"
-	"gorm.io/gorm"
 )
 
 type OrderFieldRepository struct {

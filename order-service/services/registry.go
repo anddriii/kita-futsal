@@ -12,13 +12,13 @@ type Registry struct {
 }
 
 type IServiceRegistry interface {
-	GetOrder() services.IOrdderService
+	GetOrder() services.IOrderService
 }
 
 func NewServiceRegistry(repository repositories.IRepositoryRegistry, client clients.IClientRegistry) IServiceRegistry {
 	return &Registry{repository: repository, client: client}
 }
 
-func (r *Registry) GetOrder() services.IOrdderService {
+func (r *Registry) GetOrder() services.IOrderService {
 	return services.NewOrderService(r.repository, r.client)
 }

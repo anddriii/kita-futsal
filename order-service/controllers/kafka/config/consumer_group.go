@@ -4,8 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/IBM/sarama"
 	"github.com/anddriii/kita-futsal/order-service/config"
+
+	"github.com/IBM/sarama"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,18 +20,16 @@ type ConsumerGroup struct {
 }
 
 func NewConsumerGroup() *ConsumerGroup {
-	return &ConsumerGroup{
-		handler: make(map[TopicName]Handler),
-	}
+	return &ConsumerGroup{handler: make(map[TopicName]Handler)}
 }
 
-func (c *ConsumerGroup) Setup(sarama.ConsumerGroupSession) error {
-	logrus.Info("Consumer group setup completed")
+func (c *ConsumerGroup) Setup(sarama sarama.ConsumerGroupSession) error {
+	logrus.Infof("Setup consumer group")
 	return nil
 }
 
-func (c *ConsumerGroup) Cleanup(sarama.ConsumerGroupSession) error {
-	logrus.Info("Consumer group cleanup completed")
+func (c *ConsumerGroup) Cleanup(sarama sarama.ConsumerGroupSession) error {
+	logrus.Infof("Cleanup consumer group")
 	return nil
 }
 
@@ -39,9 +38,10 @@ func (c *ConsumerGroup) ConsumeClaim(session sarama.ConsumerGroupSession, claim 
 	for message := range messages {
 		handler, ok := c.handler[TopicName(message.Topic)]
 		if !ok {
-			logrus.Warnf("No handler found for topic: %s", message.Topic)
+			logrus.Errorf("handler for topic %s not found", message.Topic)
 			continue
 		}
+
 		var err error
 		maxRetry := config.Config.Kafka.MaxRetry
 		for attempt := 1; attempt <= maxRetry; attempt++ {
@@ -49,9 +49,10 @@ func (c *ConsumerGroup) ConsumeClaim(session sarama.ConsumerGroupSession, claim 
 			if err == nil {
 				break
 			}
+
 			logrus.Errorf("error handling message pn %s, attempt %d: %v", message.Topic, attempt, err)
 			if attempt == maxRetry {
-				logrus.Errorf("max retry reached for message on topic %s: %v", message.Topic, err)
+				logrus.Errorf("max retry reached, message will be ignored")
 			}
 		}
 
@@ -62,7 +63,6 @@ func (c *ConsumerGroup) ConsumeClaim(session sarama.ConsumerGroupSession, claim 
 		}
 		session.MarkMessage(message, time.Now().UTC().String())
 	}
-
 	return nil
 }
 

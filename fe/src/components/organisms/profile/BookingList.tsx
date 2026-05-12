@@ -23,7 +23,7 @@ export default function BookingList() {
       const hash: Hash = crypto.createHash('sha256');
       hash.update(validateKey);
       const apiKey: string = hash.digest('hex');
-      const response = await axios.get(`${apiConfig.order.baseUrl}/api/v1/orders/user`, {
+      const response = await axios.get(`${apiConfig.order.baseUrl}/api/v1/order/user`, {
         headers: {
           Authorization: `Bearer ${userData.token}`,
           "x-service-name": serviceName,
