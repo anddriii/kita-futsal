@@ -13,3 +13,4 @@ setConfig.txt
 user-service/Makefile
 assets
 images
+load_test.js

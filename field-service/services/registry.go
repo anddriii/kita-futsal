@@ -6,16 +6,18 @@ import (
 	fieldService "github.com/anddriii/kita-futsal/field-service/services/field"
 	fieldScheduleService "github.com/anddriii/kita-futsal/field-service/services/field_schedule"
 	timeService "github.com/anddriii/kita-futsal/field-service/services/time"
+	"github.com/redis/go-redis/v9"
 )
 
 type Registry struct {
 	repository repositories.IRepoRegistry
 	gcs        gcs.IGCSClient
+	redis      *redis.Client
 }
 
 // GetField implements IServiceRegistry.
 func (r *Registry) GetField() fieldService.IFieldService {
-	return fieldService.NewFieldService(r.repository, r.gcs)
+	return fieldService.NewFieldService(r.repository, r.gcs, r.redis)
 }
 
 // GetFieldSchedule implements IServiceRegistry.
@@ -34,9 +36,10 @@ type IServiceRegistry interface {
 	GetTime() timeService.ITimeService
 }
 
-func NewServiceRegistry(repository repositories.IRepoRegistry, gcs gcs.IGCSClient) IServiceRegistry {
+func NewServiceRegistry(repository repositories.IRepoRegistry, gcs gcs.IGCSClient, redis *redis.Client) IServiceRegistry {
 	return &Registry{
 		repository: repository,
 		gcs:        gcs,
+		redis:      redis,
 	}
 }

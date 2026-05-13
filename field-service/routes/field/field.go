@@ -31,6 +31,7 @@ func (f *FieldRoute) Run() {
 
 	//endpoint without login
 	group.GET("", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetAllWithoutPagination)
+	group.GET("/noredis", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetAllWithoutPaginationNoRedis)
 	group.GET("/:uuid", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetByUUID)
 	group.GET("/nearby", middlewares.AuthenticateWithoutToken(), f.controller.GetField().GetNearbyFields)
 

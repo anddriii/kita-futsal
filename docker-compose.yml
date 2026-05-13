@@ -65,13 +65,21 @@ services:
    ports:
      - "5050:80"   
 
+  redis:
+    container_name: redis
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
 networks:
   host:
     external: true
   local-network:
     driver: bridge
+
 volumes:
   postgresql:
   postgresql_data:
-
-
+  redis_data:

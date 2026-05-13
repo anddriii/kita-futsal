@@ -5,6 +5,7 @@ import "github.com/gin-gonic/gin"
 type IFieldController interface {
 	GetAllWithPagination(*gin.Context)
 	GetAllWithoutPagination(*gin.Context)
+	GetAllWithoutPaginationNoRedis(*gin.Context)
 	GetNearbyFields(*gin.Context)
 	GetByUUID(*gin.Context)
 	Create(*gin.Context)

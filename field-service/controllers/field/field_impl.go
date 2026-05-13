@@ -220,6 +220,24 @@ func (f *FieldController) GetAllWithoutPagination(c *gin.Context) {
 	})
 }
 
+// GetAllWithoutPaginationNoRedis implements [IFieldController].
+func (f *FieldController) GetAllWithoutPaginationNoRedis(c *gin.Context) {
+	result, err := f.service.GetField().GetAllWithoutPaginationNoRedis(c)
+	if err != nil {
+		response.HTTPResponse(response.ParamHTTPResp{
+			Code: http.StatusBadRequest,
+			Err:  err,
+			Gin:  c,
+		})
+		return
+	}
+	response.HTTPResponse(response.ParamHTTPResp{
+		Code: http.StatusOK,
+		Data: result,
+		Gin:  c,
+	})
+}
+
 // GetByUUID implements IFieldController.
 func (f *FieldController) GetByUUID(c *gin.Context) {
 	result, err := f.service.GetField().GetByUUID(c, c.Param("uuid"))

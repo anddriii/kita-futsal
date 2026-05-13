@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -18,17 +19,20 @@ import (
 	"github.com/anddriii/kita-futsal/field-service/repositories"
 	"github.com/gofiber/fiber/v2/log"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type FieldService struct {
 	repository repositories.IRepoRegistry
 	gcs        gcs.IGCSClient
+	redis      *redis.Client
 }
 
-func NewFieldService(repository repositories.IRepoRegistry, gcs gcs.IGCSClient) IFieldService {
+func NewFieldService(repository repositories.IRepoRegistry, gcs gcs.IGCSClient, redis *redis.Client) IFieldService {
 	return &FieldService{
 		repository: repository,
 		gcs:        gcs,
+		redis:      redis,
 	}
 }
 
@@ -73,6 +77,44 @@ func (f *FieldService) GetNearbyFields(ctx context.Context, cordinate *dto.Nearb
 	return nearbyFields, nil
 }
 
+// GetAllWithoutPaginationNoRedis implements [IFieldService].
+func (f *FieldService) GetAllWithoutPagination(ctx context.Context) ([]dto.FieldResponse, error) {
+	cacheKey := "fields:all:nopagination"
+
+	// ambil data dari Redis
+	cachedData, err := f.redis.Get(ctx, cacheKey).Result()
+	fmt.Printf("cache data dari redis: %s\n", cachedData)
+
+	if err == nil {
+		// CACHE HIT: Data ada di Redis! Parse JSON ke Struct
+		var fieldResults []dto.FieldResponse
+		errUnmarshal := json.Unmarshal([]byte(cachedData), &fieldResults)
+		if errUnmarshal == nil {
+			return fieldResults, nil // Langsung balikin, gak usah ke DB
+		}
+		// Kalo unmarshal gagal, lanjut narik dari DB
+	} else if err != redis.Nil {
+		// Ada error koneksi Redis dll, kita log aja, tapi aplikasi tetep jalan ngambil dari DB
+		log.Errorf("Redis error: %v", err)
+	}
+
+	// CACHE MISS: Data gak ada di Redis, ambil dari DB pake fungsi yang lama
+	fieldResults, err := f.GetAllWithoutPaginationNoRedis(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. Simpan hasil dari DB ke Redis untuk request selanjutnya
+	dataBytes, errMarshal := json.Marshal(fieldResults)
+	if errMarshal == nil {
+		// Set TTL (Time To Live). Misalnya 5 Menit.
+		// Artinya data bakal nge-refresh dari DB setiap 5 menit.
+		f.redis.Set(ctx, cacheKey, dataBytes, 5*time.Minute)
+	}
+
+	return fieldResults, nil
+}
+
 func (f *FieldService) GetAllWithPagination(ctx context.Context, param *dto.FieldRequestParam) (*util.PaginationResult, error) {
 	fields, total, err := f.repository.GetField().FindALlWithPagination(ctx, param)
 	if err != nil {
@@ -110,7 +152,7 @@ func (f *FieldService) GetAllWithPagination(ctx context.Context, param *dto.Fiel
 	return &response, nil
 }
 
-func (f *FieldService) GetAllWithoutPagination(ctx context.Context) ([]dto.FieldResponse, error) {
+func (f *FieldService) GetAllWithoutPaginationNoRedis(ctx context.Context) ([]dto.FieldResponse, error) {
 	fields, err := f.repository.GetField().FindAllWithoutPagination(ctx)
 	if err != nil {
 		return nil, err

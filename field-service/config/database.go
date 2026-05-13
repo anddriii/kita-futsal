@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -54,4 +55,13 @@ func InitDB() (*gorm.DB, error) {
 
 	return db, nil
 
+}
+
+func NewRedisClient() *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     Config.Redis.Addr,
+		Password: Config.Redis.Password,
+		DB:       Config.Redis.DB,
+	})
+	return rdb
 }

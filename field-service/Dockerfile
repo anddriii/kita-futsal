@@ -1,29 +1,36 @@
-FROM golang:1.23-alpine AS builder
+FROM golang:1.24-alpine AS builder
 
-RUN apk update
-RUN apk add git openssh tzdata build-base python3 net-tools
+RUN apk add --no-cache \
+    git \
+    openssh \
+    tzdata \
+    build-base \
+    python3 \
+    net-tools
 
 WORKDIR /app
 
-COPY .env .env
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY . .
 
 RUN go install github.com/buu700/gin@latest
+
 RUN go mod tidy
 
 RUN make build
 
-FROM alpine:latest
 
-RUN apk update && apk upgrade && \
-    apk --update --no-cache add tzdata && \
-    apk --no-cache add curl && \
-    mkdir /app
+# runtime
+FROM surnet/alpine-wkhtmltopdf:3.20.2-0.12.6-full
+
+RUN apk add --no-cache tzdata curl
 
 WORKDIR /app
 
-EXPOSE 8002
-
 COPY --from=builder /app /app
+
+EXPOSE 8002
 
 ENTRYPOINT ["/app/field-service"]

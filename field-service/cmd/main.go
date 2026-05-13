@@ -14,14 +14,12 @@ import (
 	"github.com/anddriii/kita-futsal/field-service/constants"
 	"github.com/anddriii/kita-futsal/field-service/controllers"
 	"github.com/anddriii/kita-futsal/field-service/domains/models"
-	"github.com/anddriii/kita-futsal/field-service/middlewares"
 	"github.com/anddriii/kita-futsal/field-service/repositories"
 	"github.com/anddriii/kita-futsal/field-service/routes"
 	"github.com/anddriii/kita-futsal/field-service/services"
-	"github.com/didip/tollbooth"
-	"github.com/didip/tollbooth/limiter"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 	"github.com/spf13/cobra"
 )
 
@@ -65,10 +63,13 @@ var command = cobra.Command{
 		// Inisialisasi klien GCS
 		gcsClient := initGCS()
 		client := clients.NewClientRegistry()
+		rdb := redis.NewClient(&redis.Options{
+			Addr: config.Config.Redis.Addr,
+		})
 
 		// Inisialisasi repository, service, dan controller
 		repository := repositories.NewRepositoryRegistry(db)
-		service := services.NewServiceRegistry(repository, gcsClient)
+		service := services.NewServiceRegistry(repository, gcsClient, rdb)
 		controller := controllers.NewControllerRegistry(service)
 
 		// Membuat instance router Gin
@@ -111,14 +112,14 @@ var command = cobra.Command{
 			}
 		})
 
-		// Middleware untuk membatasi jumlah permintaan (Rate Limiting)
-		lmt := tollbooth.NewLimiter(
-			config.Config.RateLimiterMaxRequest,
-			&limiter.ExpirableOptions{
-				DefaultExpirationTTL: time.Duration(config.Config.RateLimiterTimeSecond) * time.Second,
-			},
-		)
-		router.Use(middlewares.RateLimiter(lmt))
+		// // Middleware untuk membatasi jumlah permintaan (Rate Limiting)
+		// lmt := tollbooth.NewLimiter(
+		// 	config.Config.RateLimiterMaxRequest,
+		// 	&limiter.ExpirableOptions{
+		// 		DefaultExpirationTTL: time.Duration(config.Config.RateLimiterTimeSecond) * time.Second,
+		// 	},
+		// )
+		// router.Use(middlewares.RateLimiter(lmt))
 
 		// Inisialisasi route untuk API versi 1
 		group := router.Group("/api/v1")
